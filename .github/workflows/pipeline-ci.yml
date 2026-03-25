@@ -12,10 +12,6 @@ jobs:
     name: Frontend Tests
     # Màquina virtual on s'executen els tests
     runs-on: ubuntu-latest
-    # Totes les comandes s'executen dins del directori frontend/
-    defaults:
-      run:
-        working-directory: frontend
     steps:
       # Clona el repositori
       - uses: actions/checkout@v4
@@ -27,7 +23,9 @@ jobs:
           cache: npm
           cache-dependency-path: package-lock.json
 
-      # Instal·la les dependències
-      - run: npm ci
-      # Executa els tests — si fallen, la pipeline falla i bloqueja el merge
-      - run: npm test
+      # Instal·la les dependències des de l'arrel (monorepo amb workspaces)
+      # --ignore-scripts evita executar husky, que no cal a CI
+      - run: npm ci --ignore-scripts
+
+      # Executa els tests del frontend — si fallen, la pipeline falla i bloqueja el merge
+      - run: npm test --workspace=frontend
