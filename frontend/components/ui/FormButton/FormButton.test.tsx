@@ -43,5 +43,12 @@ describe("Donat el component FormButton", () => {
       );
       expect(handleClick).not.toHaveBeenCalled();
     });
+
+    test("Ha de tenir la classe opacity-40", () => {
+      render(<FormButton disabled>Deshabilitat</FormButton>);
+      const button = screen.getByRole("button", { name: "Deshabilitat" });
+      expect(button).toHaveClass("opacity-40");
+      expect(button).toHaveClass("cursor-not-allowed");
+    });
   });
 });
