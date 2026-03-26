@@ -1,44 +1,45 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
+import FormInput from "@/components/ui/FormInput/FormInput";
+import FormButton from "@/components/ui/FormButton/FormButton";
+import AuthFormCard from "@/components/auth/AuthFormCard/AuthFormCard";
+import { REGISTER_COPY } from "@/constants/copy/auth";
 
-export default function RegisterPage() {
+const RegisterPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const handleSubmit: React.ComponentPropsWithoutRef<"form">["onSubmit"] = (
+    e,
+  ) => {
+    e.preventDefault();
+    // TODO: connectar amb l'API de registre
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-abyss-bg text-cyan-50">
-      <div className="bg-abyss-panel p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold mb-6 text-center">Registro</h1>
-
-        <form className="flex flex-col gap-4">
-          {/* Email */}
-          <input
-            type="email"
-            placeholder="Correo electrónico"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="p-3 rounded-lg bg-abyss-bg text-cyan-50 border border-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-          />
-
-          {/* Password */}
-          <input
-            type="password"
-            placeholder="Contraseña"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="p-3 rounded-lg bg-abyss-bg text-cyan-50 border border-cyan-700 focus:outline-none focus:ring-2 focus:ring-cyan-500"
-          />
-
-          {/* Botón */}
-          <button
-            type="submit"
-            className="mt-4 p-3 bg-cyan-600 text-[#02080a] font-bold rounded-lg hover:bg-cyan-500 transition-colors"
-          >
-            Registrarse
-          </button>
-        </form>
-      </div>
-    </div>
+    <AuthFormCard
+      title={REGISTER_COPY.title}
+      switchPrompt={REGISTER_COPY.switchPrompt}
+      switchLink={REGISTER_COPY.switchLink}
+      switchHref={REGISTER_COPY.switchHref}
+      onSubmit={handleSubmit}
+    >
+      <FormInput
+        type="email"
+        placeholder={REGISTER_COPY.fields.email}
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+      />
+      <FormInput
+        type="password"
+        placeholder={REGISTER_COPY.fields.password}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      <FormButton>{REGISTER_COPY.submit}</FormButton>
+    </AuthFormCard>
   );
-}
+};
+
+export default RegisterPage;
