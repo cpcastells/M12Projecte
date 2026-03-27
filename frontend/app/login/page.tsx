@@ -4,10 +4,10 @@ import { useState } from "react";
 import FormInput from "@/components/ui/FormInput/FormInput";
 import FormButton from "@/components/ui/FormButton/FormButton";
 import AuthFormCard from "@/components/auth/AuthFormCard/AuthFormCard";
-import { REGISTER_COPY } from "@/constants/copy/auth";
+import { LOGIN_COPY } from "@/constants/copy/auth";
 import { validateEmail, validatePassword } from "@/utils/validation";
 
-const RegisterPage = () => {
+const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{
@@ -48,20 +48,20 @@ const RegisterPage = () => {
     e,
   ) => {
     e.preventDefault();
-    // TODO: connectar amb l'API de registre
+    // TODO: connectar amb l'API d'autenticació
   };
 
   return (
     <AuthFormCard
-      title={REGISTER_COPY.title}
-      switchPrompt={REGISTER_COPY.switchPrompt}
-      switchLink={REGISTER_COPY.switchLink}
-      switchHref={REGISTER_COPY.switchHref}
+      title={LOGIN_COPY.title}
+      switchPrompt={LOGIN_COPY.switchPrompt}
+      switchLink={LOGIN_COPY.switchLink}
+      switchHref={LOGIN_COPY.switchHref}
       onSubmit={handleSubmit}
     >
       <FormInput
         type="email"
-        placeholder={REGISTER_COPY.fields.email}
+        placeholder={LOGIN_COPY.fields.email}
         value={email}
         onChange={handleEmailChange}
         onBlur={() => handleBlur("email")}
@@ -69,15 +69,15 @@ const RegisterPage = () => {
       />
       <FormInput
         type="password"
-        placeholder={REGISTER_COPY.fields.password}
+        placeholder={LOGIN_COPY.fields.password}
         value={password}
         onChange={handlePasswordChange}
         onBlur={() => handleBlur("password")}
         error={touched.password ? errors.password : null}
       />
-      <FormButton disabled={!isValid}>{REGISTER_COPY.submit}</FormButton>
+      <FormButton disabled={!isValid}>{LOGIN_COPY.submit}</FormButton>
     </AuthFormCard>
   );
 };
 
-export default RegisterPage;
+export default LoginPage;

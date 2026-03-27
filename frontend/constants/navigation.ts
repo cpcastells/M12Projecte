@@ -8,4 +8,5 @@ export const NAV_ROUTES: NavRoute[] = [
   { href: "/narrative", label: "Narrativa" },
   { href: "/room", label: "Sala 01" },
   { href: "/profile", label: "Perfil" },
+  { href: "/login", label: "Entrar" },
 ];
