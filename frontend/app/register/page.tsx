@@ -86,7 +86,7 @@ const RegisterPage = () => {
       { email, password, username },
       {
         onSuccess: () => router.push("/login"),
-        onError: (error: unknown) => {
+        onError: (error) => {
           setApiError(
             error instanceof ApiError
               ? error.message
