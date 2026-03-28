@@ -1,5 +1,5 @@
 /** URL base de l'API, configurable via variable d'entorn `NEXT_PUBLIC_API_URL`. */
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 /**
  * Mapa centralitzat de tots els endpoints de l'API.
