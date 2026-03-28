@@ -24,10 +24,10 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function register(req: Request, res: Response) {
-  const { email, password, name } = req.body ?? {};
+  const { email, password, username } = req.body ?? {};
 
   // required
-  if (!email || !password) {
+  if (!email || !password || !username) {
     return res.status(400).json({
       message: "El correu electrònic i la contrasenya són obligatoris",
     });
@@ -68,6 +68,6 @@ export async function register(req: Request, res: Response) {
 
   return res.status(201).json({
     message: "Endpoint de registre OK",
-    user: { email, name },
+    user: { email, username },
   });
 }
