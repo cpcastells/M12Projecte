@@ -1,5 +1,9 @@
 import { VALIDATION_ERRORS } from "@/constants/copy/validation";
-import { validateEmail, validatePassword } from "./validation";
+import {
+  validateEmail,
+  validatePassword,
+  validateUsername,
+} from "./validation";
 
 describe("Donada la funció validateEmail", () => {
   test("retorna error si el valor és buit", () => {
@@ -42,5 +46,20 @@ describe("Donada la funció validatePassword", () => {
   test("retorna null si compleix tots els requisits", () => {
     expect(validatePassword("Abcdef1")).toBeNull();
     expect(validatePassword("Password123")).toBeNull();
+  });
+});
+
+describe("Donada la funció validateUsername", () => {
+  test("retorna error si el valor és buit", () => {
+    expect(validateUsername("")).toBe(VALIDATION_ERRORS.username.required);
+  });
+
+  test("retorna error si té menys de 3 caràcters", () => {
+    expect(validateUsername("ab")).toBe(VALIDATION_ERRORS.username.minLength);
+  });
+
+  test("retorna null si compleix tots els requisits", () => {
+    expect(validateUsername("abc")).toBeNull();
+    expect(validateUsername("usuari123")).toBeNull();
   });
 });
