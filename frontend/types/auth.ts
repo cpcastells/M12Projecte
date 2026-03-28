@@ -1,5 +1,5 @@
 export type LoginRequest = { email: string; password: string };
-export type LoginResponse = { message: string; email: string };
+export type LoginResponse = { message: string };
 
 export type RegisterRequest = {
   email: string;
