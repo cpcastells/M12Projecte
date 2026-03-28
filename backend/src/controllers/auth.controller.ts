@@ -29,7 +29,8 @@ export async function register(req: Request, res: Response) {
   // required
   if (!email || !password || !username) {
     return res.status(400).json({
-      message: "El correu electrònic i la contrasenya són obligatoris",
+      message:
+        "El correu electrònic, la contrasenya i el nom d'usuari són obligatoris",
     });
   }
 
