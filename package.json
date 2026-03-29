@@ -8,6 +8,10 @@
   "scripts": {
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
+    "backend:db:deploy": "npm run db:deploy --workspace=backend",
+    "backend:db:generate": "npm run db:generate --workspace=backend",
+    "backend:db:studio": "npm run db:studio --workspace=backend",
+    "dev:backend:full": "docker compose up -d && npm run db:deploy --workspace=backend && npm run db:generate --workspace=backend && npm run dev --workspace=backend",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
