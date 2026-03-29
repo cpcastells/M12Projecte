@@ -1,8 +1,4 @@
-import path from "path";
-import { config } from "dotenv";
-
-config({ path: path.resolve(process.cwd(), ".env"), override: true });
-
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
