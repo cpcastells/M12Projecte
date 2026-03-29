@@ -4,16 +4,15 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  username  String
-  password  String
-  role      String   @default("user")
-  games     Game[]
+  id           Int    @id @default(autoincrement())
+  email        String @unique
+  username     String @unique
+  passwordHash String
+  role         String @default("user")
+  games        Game[]
 }
 
 model Game {

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { hashPassword } from "../utils/password";
 // import { comparePassword } from "../utils/password";
+import { prisma } from "../db/prisma";
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const hasUppercase = /[A-Z]/;
@@ -65,10 +66,42 @@ export async function register(req: Request, res: Response) {
   // (#65): bcrypt
   const passwordHash = await hashPassword(password);
 
-  // TODO (#66): guardar usuari a BD amb Prisma utilitzant passwordHash
+  // (#66): guardar usuari a BD amb Prisma utilitzant passwordHash
+  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedUsername = username.trim();
 
-  return res.status(201).json({
-    message: "Endpoint de registre OK",
-    user: { email, username },
-  });
+  try {
+    const createdUser = await prisma.user.create({
+      data: {
+        email: normalizedEmail,
+        username: normalizedUsername,
+        passwordHash,
+        // role no caldria: al model per defecte és user
+      },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        role: true,
+      },
+    });
+
+    return res.status(201).json({
+      message: "Usuari registrat correctament",
+      user: createdUser,
+    });
+  } catch (err: any) {
+    // Duplicat (email o username únics): Prisma P2002 (violació de camp @unique)
+    if (err?.code === "P2002") {
+      return res.status(409).json({
+        message: "El correu o el nom d'usuari ja existeix",
+      });
+    }
+
+    // Error inesperat del servidor (no relacionat amb validacions ni duplicats)
+    console.error("REGISTER ERROR →", err);
+    return res.status(500).json({
+      message: "Error intern en registrar l'usuari",
+    });
+  }
 }
