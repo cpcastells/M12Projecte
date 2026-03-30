@@ -1,8 +1,6 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
 
 interface NavRoute {
   label: string;
@@ -14,55 +12,47 @@ interface NavRoute {
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [loggedIn, setLoggedIn] = useState(false); // Estado de autenticación (simulado)
-
-  const handleLogout = () => {
-    localStorage.setItem("loggedIn", "false");
-    setLoggedIn(false);
-    router.push("/");
-  };
-
-  const isActive = (href?: string) =>
-    href ? (href === "/" ? pathname === "/" : pathname.startsWith(href)) : false;
 
   let routesToRender: NavRoute[] = [];
 
-  if (!loggedIn) {
+  if (pathname === "/") {
+    // Landing page
     routesToRender = [
       { label: "Inici", href: "/" },
       { label: "Entrar", onClick: () => router.push("/narrative") },
     ];
   } else {
+    // Páginas de narrativa / salas / instrucciones / perfil
     routesToRender = [
       { label: "Narrativa", href: "/narrative" },
       {
         label: "Salas",
         dropdown: [
-          { label: "Sala 01", href: "/sala1" },
-          { label: "Sala 02", href: "/sala2" },
-          { label: "Sala 03", href: "/sala3" },
+          { label: "Sala 01", href: "/room01" },
+          { label: "Sala 02", href: "/room02" },
+          { label: "Sala 03", href: "/room03" },
         ],
       },
       { label: "Instruccions", href: "/instruccions" },
-      { label: "Admin", href: "/admin" },
-      { label: "Sortir", onClick: handleLogout },
+      { label: "Perfil", href: "/profile" },
+      { label: "Logout", onClick: () => router.push("/") },
     ];
   }
 
   return (
     <nav className="w-full max-w-7xl mx-auto flex justify-between items-center p-6 z-50">
       <div className="text-xl font-bold tracking-tighter text-cyan-400">ABYSS AI</div>
-      <div className="flex gap-8 text-[10px] tracking-[0.3em] text-cyan-800 uppercase font-bold relative">
+      <div className="flex gap-8 text-[10px] tracking-[0.3em] text-cyan-800 uppercase font-bold">
         {routesToRender.map((route) =>
           route.dropdown ? (
             <div key={route.label} className="relative group">
               <span className="cursor-pointer hover:text-cyan-400">{route.label}</span>
-              <div className="absolute top-full left-0 mt-1 hidden group-hover:block bg-cyan-950 border border-cyan-700 rounded shadow-md">
+              <div className="absolute hidden group-hover:flex flex-col bg-cyan-950 border border-cyan-500/30 mt-2 p-2 z-50">
                 {route.dropdown.map((item) => (
                   <Link
                     key={item.href}
-                    href={item.href}
-                    className="block px-4 py-2 text-cyan-50 text-[10px] hover:bg-cyan-700"
+                    href={item.href!}
+                    className="text-cyan-400 text-sm py-1 hover:text-cyan-200"
                   >
                     {item.label}
                   </Link>
@@ -74,7 +64,7 @@ export default function Navbar() {
               key={route.label}
               onClick={route.onClick}
               className={`cursor-pointer ${
-                isActive(route.href) ? "text-cyan-400 border-b border-cyan-400 pb-1" : "hover:text-cyan-400"
+                pathname === route.href ? "text-cyan-400 border-b border-cyan-400 pb-1" : "hover:text-cyan-400"
               }`}
             >
               {route.label}

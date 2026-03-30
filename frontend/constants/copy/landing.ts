@@ -19,7 +19,10 @@ export const LANDING_COPY = {
     },
   ],
   ctaPrimary: "Iniciar Missió",
-  ctaSecondary: [{ label: "Instruccions" }, { label: "El meu perfil" }],
+   ctaSecondary: [
+    { label: "Instruccions", href: "/instruccions" },
+    { label: "El meu perfil", href: "/profile" },
+  ],
   stats: [
     { value: "3", label: "Sales", accent: false },
     { value: "7", label: "Enigmes", accent: false },
