@@ -8,6 +8,12 @@
   "scripts": {
     "dev:backend": "npm run dev --workspace=backend",
     "dev:frontend": "npm run dev --workspace=frontend",
+    "db:start": "docker compose up -d",
+    "db:stop": "docker compose down",
+    "db:deploy": "npm run db:deploy --workspace=backend",
+    "db:generate": "npm run db:generate --workspace=backend",
+    "db:studio": "npm run db:studio --workspace=backend",
+    "dev:full": "npm run db:start && npm run db:deploy --workspace=backend && npm run db:generate --workspace=backend && npm run dev --workspace=backend",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
@@ -18,5 +24,10 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.8.1"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.6.0",
+    "@prisma/client": "^7.6.0",
+    "pg": "^8.20.0"
   }
 }

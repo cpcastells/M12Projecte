@@ -1,15 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import FormInput from "@/components/ui/FormInput/FormInput";
 import FormButton from "@/components/ui/FormButton/FormButton";
 import AuthFormCard from "@/components/auth/AuthFormCard/AuthFormCard";
-import { REGISTER_COPY } from "@/constants/copy/auth";
+import { LOGIN_COPY } from "@/constants/copy/auth";
 import { validateEmail, validatePassword } from "@/utils/validation";
+import useLogin from "@/hooks/useLogin";
+import { ApiError } from "@/services/apiClient";
 
-const RegisterPage = () => {
+const LoginPage = () => {
+  const router = useRouter();
+  const { mutate, isPending } = useLogin();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [apiError, setApiError] = useState<string | null>(null);
   const [errors, setErrors] = useState<{
     email: string | null;
     password: string | null;
@@ -48,20 +55,33 @@ const RegisterPage = () => {
     e,
   ) => {
     e.preventDefault();
-    // TODO: connectar amb l'API de registre
+    setApiError(null);
+    mutate(
+      { email, password },
+      {
+        onSuccess: () => router.push("/"),
+        onError: (error) => {
+          setApiError(
+            error instanceof ApiError
+              ? error.message
+              : "Error de connexió amb el servidor",
+          );
+        },
+      },
+    );
   };
 
   return (
     <AuthFormCard
-      title={REGISTER_COPY.title}
-      switchPrompt={REGISTER_COPY.switchPrompt}
-      switchLink={REGISTER_COPY.switchLink}
-      switchHref={REGISTER_COPY.switchHref}
+      title={LOGIN_COPY.title}
+      switchPrompt={LOGIN_COPY.switchPrompt}
+      switchLink={LOGIN_COPY.switchLink}
+      switchHref={LOGIN_COPY.switchHref}
       onSubmit={handleSubmit}
     >
       <FormInput
         type="email"
-        placeholder={REGISTER_COPY.fields.email}
+        placeholder={LOGIN_COPY.fields.email}
         value={email}
         onChange={handleEmailChange}
         onBlur={() => handleBlur("email")}
@@ -69,15 +89,20 @@ const RegisterPage = () => {
       />
       <FormInput
         type="password"
-        placeholder={REGISTER_COPY.fields.password}
+        placeholder={LOGIN_COPY.fields.password}
         value={password}
         onChange={handlePasswordChange}
         onBlur={() => handleBlur("password")}
         error={touched.password ? errors.password : null}
       />
-      <FormButton disabled={!isValid}>{REGISTER_COPY.submit}</FormButton>
+      {apiError && (
+        <p className="text-red-400 text-sm text-center">{apiError}</p>
+      )}
+      <FormButton disabled={!isValid || isPending}>
+        {isPending ? "Entrant..." : LOGIN_COPY.submit}
+      </FormButton>
     </AuthFormCard>
   );
 };
 
-export default RegisterPage;
+export default LoginPage;

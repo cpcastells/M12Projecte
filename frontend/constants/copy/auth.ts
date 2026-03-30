@@ -9,7 +9,11 @@ export const LOGIN_COPY = {
 
 export const REGISTER_COPY = {
   title: "Registre",
-  fields: { email: "Correu electrònic", password: "Contrasenya" },
+  fields: {
+    username: "Nom d'usuari",
+    email: "Correu electrònic",
+    password: "Contrasenya",
+  },
   submit: "Registrar-se",
   switchPrompt: "Ja tens compte?",
   switchLink: "Inicia sessió",
