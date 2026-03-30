@@ -1,7 +1,14 @@
 import Navbar from "@/components/layout/Navbar";
 import { LANDING_COPY } from "@/constants/copy/landing";
+import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
+  const router = useRouter(); // Hook de Next.js para navegación programática
+
+  // Función para ir a narrativa
+  const goToNarrative = () => {
+    router.push("/narrative");
+  };
   return (
     <main className="min-h-screen text-cyan-50 font-mono flex flex-col items-center selection:bg-cyan-950 overflow-hidden relative">
       <Navbar />

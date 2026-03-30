@@ -36,7 +36,6 @@ export const INSTRUCTIONS_COPY = {
     "ESC Menu principal(la partida es desa) → Sortir",
   ],
 
-
   cta: {
     primary: "INICIAR MISSIÓ",
     secondary: "Tornar a l'inici",

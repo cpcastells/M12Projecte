@@ -3,6 +3,7 @@ import Home from "./page";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",
+  useRouter: () => ({ push: vi.fn() }),
 }));
 
 describe("Donada la pàgina principal", () => {

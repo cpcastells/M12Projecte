@@ -6,7 +6,7 @@ import { User, DEFAULT_USER } from "@/constants/copy/profile";
 
 export default function ProfilePage() {
   const router = useRouter();
- const [user, setUser] = useState<User>(DEFAULT_USER);
+  const [user, setUser] = useState<User>(DEFAULT_USER);
   const [form, setForm] = useState<User>({ ...DEFAULT_USER });
   const [editing, setEditing] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -23,10 +23,22 @@ export default function ProfilePage() {
   ];
 
   const gameLog = [
-    { time: "04:32", text: "Accés a l'estació Hadal-7 iniciat. Connexió establerta." },
-    { time: "04:35", text: "Entrada a Sala 01 — Control Central. Enigma activat." },
-    { time: "04:38", text: "Inspeccionat Terminal A. Anomalia detectada al log d'error." },
-    { time: "04:41", text: "Inspeccionat Panel de Control. Nivell d'oxigen crític: 17%." },
+    {
+      time: "04:32",
+      text: "Accés a l'estació Hadal-7 iniciat. Connexió establerta.",
+    },
+    {
+      time: "04:35",
+      text: "Entrada a Sala 01 — Control Central. Enigma activat.",
+    },
+    {
+      time: "04:38",
+      text: "Inspeccionat Terminal A. Anomalia detectada al log d'error.",
+    },
+    {
+      time: "04:41",
+      text: "Inspeccionat Panel de Control. Nivell d'oxigen crític: 17%.",
+    },
     { time: "04:44", text: "Intent de codi incorrecte. Intents restants: 3." },
   ];
 
@@ -54,13 +66,26 @@ export default function ProfilePage() {
               {/* Avatar */}
               <div className="w-24 h-24 border border-cyan-400 rounded flex items-center justify-center">
                 <svg viewBox="0 0 48 48" fill="none" className="w-16 h-16">
-                  <circle cx="24" cy="18" r="10" stroke="rgba(0,229,255,0.6)" strokeWidth={1.5}/>
-                  <path d="M8 42c0-8.837 7.163-16 16-16s16 7.163 16 16" stroke="rgba(0,229,255,0.6)" strokeWidth={1.5}/>
+                  <circle
+                    cx="24"
+                    cy="18"
+                    r="10"
+                    stroke="rgba(0,229,255,0.6)"
+                    strokeWidth={1.5}
+                  />
+                  <path
+                    d="M8 42c0-8.837 7.163-16 16-16s16 7.163 16 16"
+                    stroke="rgba(0,229,255,0.6)"
+                    strokeWidth={1.5}
+                  />
                 </svg>
               </div>
 
               {editing ? (
-                <form onSubmit={handleSave} className="flex flex-col gap-2 w-full">
+                <form
+                  onSubmit={handleSave}
+                  className="flex flex-col gap-2 w-full"
+                >
                   <input
                     type="text"
                     name="username"
@@ -110,7 +135,11 @@ export default function ProfilePage() {
                 </>
               )}
 
-              {success && <div className="text-green-400 text-[10px] mt-2">Perfil actualitzat!</div>}
+              {success && (
+                <div className="text-green-400 text-[10px] mt-2">
+                  Perfil actualitzat!
+                </div>
+              )}
 
               <div className="grid grid-cols-2 gap-2 w-full text-center text-xs mt-4">
                 <div className="border border-cyan-700 py-2 rounded">
@@ -127,21 +156,26 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <button className="btn-primary w-full mt-4">▶ CONTINUAR PARTIDA</button>
+              <button className="btn-primary w-full mt-4">
+                ▶ CONTINUAR PARTIDA
+              </button>
             </div>
 
             <div className="flex flex-col gap-2">
               <button className="btn-secondary w-full">Nova Partida</button>
-              <button className="btn-secondary w-full border-red-600 text-red-400">Tancar sessió</button>
+              <button className="btn-secondary w-full border-red-600 text-red-400">
+                Tancar sessió
+              </button>
             </div>
           </div>
 
           {/* Right Panel */}
           <div className="w-2/3 flex flex-col gap-4">
-
             {/* Partida Actual */}
             <div className="profile-section bg-[#01111a] border border-cyan-800 rounded p-4">
-              <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">Partida Actual</div>
+              <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">
+                Partida Actual
+              </div>
               <div className="grid grid-cols-3 gap-4 mb-4 text-[10px]">
                 <div>
                   <div className="text-muted uppercase mb-1">SALA ACTUAL</div>
@@ -158,7 +192,10 @@ export default function ProfilePage() {
               </div>
               <div className="text-muted text-[10px] mb-1">PROGRÉS GLOBAL</div>
               <div className="w-full h-2 bg-cyan-900 rounded">
-                <div className="h-2 bg-cyan-400 rounded" style={{ width: `${user.completion}%` }} />
+                <div
+                  className="h-2 bg-cyan-400 rounded"
+                  style={{ width: `${user.completion}%` }}
+                />
               </div>
               <div className="flex justify-between text-muted text-[10px] mt-1">
                 <span>Sala 01 — Control Central</span>
@@ -168,7 +205,9 @@ export default function ProfilePage() {
 
             {/* Game Log */}
             <div className="profile-section bg-[#01111a] border border-cyan-800 rounded p-4 text-[10px]">
-              <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">Registre d&apos;Activitat</div>
+              <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">
+                Registre d&apos;Activitat
+              </div>
               {gameLog.map((entry, i) => (
                 <div key={i} className="flex gap-1 mb-1">
                   <span className="text-cyan-400">{entry.time}</span>
@@ -179,17 +218,21 @@ export default function ProfilePage() {
 
             {/* Achievements */}
             <div className="profile-section bg-[#01111a] border border-cyan-800 rounded p-4">
-              <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">Assoliments</div>
+              <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">
+                Assoliments
+              </div>
               <div className="grid grid-cols-4 gap-2">
                 {achievements.map((a, i) => (
-                  <div key={i} className={`achievement ${a.unlocked ? "unlocked" : "locked"} border border-cyan-700 rounded py-2 flex flex-col items-center`}>
+                  <div
+                    key={i}
+                    className={`achievement ${a.unlocked ? "unlocked" : "locked"} border border-cyan-700 rounded py-2 flex flex-col items-center`}
+                  >
                     <span className="text-xl">{a.icon}</span>
                     <div className="text-[10px]">{a.name}</div>
                   </div>
                 ))}
               </div>
             </div>
-
           </div>
         </div>
       </div>

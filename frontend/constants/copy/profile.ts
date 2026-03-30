@@ -10,7 +10,6 @@ export interface User {
   completionRate?: number;
   attempts?: number;
   victories?: number;
-
 }
 
 // Valores por defecto o constantes de prueba
@@ -22,5 +21,5 @@ export const DEFAULT_USER: User = {
   completionRate: 10,
   attempts: 3,
   victories: 0,
-  completion: undefined
+  completion: undefined,
 };

@@ -3,8 +3,17 @@ import Navbar from "@/components/layout/Navbar";
 import { NARRATIVE_COPY } from "@/constants/copy/narrative";
 import { useRouter } from "next/navigation";
 
-export default function NarrativePage() {
-  const router = useRouter();
+const NarrativePage = () => {
+  const router = useRouter(); // Hook de Next.js para navegación programática
+
+  // Función para volver a la landing
+  const goToLanding = () => {
+    router.push("/");
+  };
+  const goToRoom = () => {
+    router.push("/room");
+  };
+
   return (
     <main className="min-h-screen bg-abyss-bg text-cyan-50 font-mono flex flex-col">
       <Navbar />
@@ -79,25 +88,28 @@ export default function NarrativePage() {
             ))}
           </div>
 
-        {/* Botons d'acció */}
-        {/* ▶ ENTRAR A SALA 01 */}
-        <button
-          onClick={() => router.push("/room")}
-          className="px-10 py-4 bg-cyan-500 text-black font-black text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(34,211,238,0.4)]"
-        >
-          ▶ ENTRAR SALA 01
-        </button>
+          {/* Botons d'acció */}
+          <div className="mt-12 flex items-center gap-8">
+            {/* Botón principal → Sala 01 */}
+            <button
+              onClick={goToRoom}
+              className="px-10 py-4 bg-cyan-500 text-black font-black text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+            >
+              ▶ {NARRATIVE_COPY.cta.primary}
+            </button>
 
-        {/* ⇠ VOLVER A INICIO */}
-        <button
-          onClick={() => router.push("/")}
-          className="text-[9px] text-cyan-900 tracking-widest uppercase hover:text-cyan-400 transition-colors"
-        >
-          ⇠ Tornar a inici
-        </button>
+            {/* Botón secundario → volver al landing */}
+            <button
+              onClick={goToLanding}
+              className="text-[9px] text-cyan-900 tracking-widest uppercase hover:text-cyan-400 transition-colors"
+            >
+              ⇠ {NARRATIVE_COPY.cta.secondary}
+            </button>
+          </div>
         </div>
       </div>
     </main>
   );
-}
+};
 
+export default NarrativePage;

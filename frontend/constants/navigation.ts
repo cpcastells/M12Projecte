@@ -6,7 +6,7 @@ export interface NavRoute {
 export const NAV_ROUTES: NavRoute[] = [
   { href: "/", label: "Inici" },
   { href: "/narrative", label: "Narrativa" },
-  {href: "/room", label: "Salas" },
+  { href: "/room", label: "Salas" },
   { href: "/instruccions", label: "Instruccions" },
   { href: "/profile", label: "Perfil" },
   { href: "/login", label: "Entrar" },
