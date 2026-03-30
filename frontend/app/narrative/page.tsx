@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 function NarrativePage() {
   const router = useRouter();
 
+
   return (
     <main className="min-h-screen bg-abyss-bg text-cyan-50 font-mono flex flex-col">
       <Navbar />

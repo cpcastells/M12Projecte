@@ -54,15 +54,15 @@ export default function InstructionsPage() {
               <p key={index}>{c}</p>
             ))}
           </div>
-
-          {/* FOOTER */}
-          <div className="flex justify-start">
-            <button
-              onClick={() => router.push("/")}
-              className="text-cyan-600 hover:text-cyan-400 text-sm"
-            >
-              {INSTRUCTIONS_COPY.cta.secondary}
-            </button>
+            {/* FOOTER */}
+           <div className="flex justify-start">
+              <button
+                onClick={() => router.push("/")}
+                className="text-cyan-600 hover:text-cyan-400 text-sm"
+              >
+                {INSTRUCTIONS_COPY.cta.secondary}
+              </button>
+            </div>
           </div>
         </div>
       </div>
