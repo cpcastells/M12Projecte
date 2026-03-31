@@ -13,7 +13,7 @@
     "db:deploy": "npm run db:deploy --workspace=backend",
     "db:generate": "npm run db:generate --workspace=backend",
     "db:studio": "npm run db:studio --workspace=backend",
-    "dev:full": "npm run db:start && npm run db:deploy --workspace=backend && npm run db:generate --workspace=backend && npm run dev --workspace=backend",
+    "dev:full": "npm run db:start && npm run db:deploy --workspace=backend && npm run db:generate --workspace=backend && npm run dev --workspace=backend && npm run dev --workspace=frontend",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"
