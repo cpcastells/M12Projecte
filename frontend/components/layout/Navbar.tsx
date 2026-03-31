@@ -1,34 +1,76 @@
 "use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { NAV_ROUTES } from "@/constants/navigation";
+import { usePathname, useRouter } from "next/navigation";
+
+interface NavRoute {
+  label: string;
+  href?: string;
+  onClick?: () => void;
+  dropdown?: { label: string; href: string }[];
+}
 
 export default function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
 
-  const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+  let routesToRender: NavRoute[] = [];
+
+  if (pathname === "/") {
+    // Landing page
+    routesToRender = [
+      { label: "Inici", href: "/" },
+      { label: "Entrar", onClick: () => router.push("/narrative") },
+    ];
+  } else {
+    // Páginas de narrativa / salas / instrucciones / perfil
+    routesToRender = [
+      { label: "Narrativa", href: "/narrative" },
+      {
+        label: "Salas",
+        dropdown: [
+          { label: "Sala 01", href: "/room01" },
+          { label: "Sala 02", href: "/room02" },
+          { label: "Sala 03", href: "/room03" },
+        ],
+      },
+      { label: "Instruccions", href: "/instruccions" },
+      { label: "Perfil", href: "/profile" },
+      { label: "Logout", onClick: () => router.push("/") },
+    ];
+  }
 
   return (
     <nav className="w-full max-w-7xl mx-auto flex justify-between items-center p-6 z-50">
-      <div className="text-xl font-bold tracking-tighter text-cyan-400">
-        ABYSS AI
-      </div>
+      <div className="text-xl font-bold tracking-tighter text-cyan-400">ABYSS AI</div>
       <div className="flex gap-8 text-[10px] tracking-[0.3em] text-cyan-800 uppercase font-bold">
-        {NAV_ROUTES.map((route) => (
-          <Link
-            key={route.href}
-            href={route.href}
-            className={
-              isActive(route.href)
-                ? "text-cyan-400 border-b border-cyan-400 pb-1 transition-all"
-                : "hover:text-cyan-400 transition-all"
-            }
-          >
-            {route.label}
-          </Link>
-        ))}
+        {routesToRender.map((route) =>
+          route.dropdown ? (
+            <div key={route.label} className="relative group">
+              <span className="cursor-pointer hover:text-cyan-400">{route.label}</span>
+              <div className="absolute hidden group-hover:flex flex-col bg-cyan-950 border border-cyan-500/30 mt-2 p-2 z-50">
+                {route.dropdown.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href!}
+                    className="text-cyan-400 text-sm py-1 hover:text-cyan-200"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <span
+              key={route.label}
+              onClick={route.onClick}
+              className={`cursor-pointer ${
+                pathname === route.href ? "text-cyan-400 border-b border-cyan-400 pb-1" : "hover:text-cyan-400"
+              }`}
+            >
+              {route.label}
+            </span>
+          )
+        )}
       </div>
     </nav>
   );

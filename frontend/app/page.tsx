@@ -9,6 +9,7 @@ export default function LandingPage() {
   const goToNarrative = () => {
     router.push("/narrative");
   };
+
   return (
     <main className="min-h-screen text-cyan-50 font-mono flex flex-col items-center selection:bg-cyan-950 overflow-hidden relative">
       <Navbar />
@@ -56,27 +57,37 @@ export default function LandingPage() {
           ))}
         </div>
 
-        {/* Botons d'acció */}
+      {/* Botons d'acció */}
         <div className="mt-16 flex flex-col items-center gap-6 w-full">
-          <button className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black">
+          <button
+            onClick={goToNarrative} // <-- Esto redirige a /narrative
+            className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black"
+          >
             <span className="relative z-10 font-bold">
               ▶ {LANDING_COPY.ctaPrimary}
             </span>
           </button>
 
           <div className="flex gap-12 text-[9px] tracking-[0.3em] text-cyan-900 uppercase font-bold">
-            {LANDING_COPY.ctaSecondary.map((cta) => (
-              <button
-                key={cta.label}
-                className="hover:text-cyan-400 transition-colors"
-              >
-                {cta.label}
-              </button>
-            ))}
+            {LANDING_COPY.ctaSecondary.map((cta) => {
+              // Mapear label a ruta
+              let target = "/";
+              if (cta.label.toLowerCase() === "instruccions") target = "/instruccions";
+              if (cta.label.toLowerCase() === "el meu perfil") target = "/profile";
+
+              return (
+                <button
+                  key={cta.label}
+                  onClick={() => router.push(target)}
+                  className="hover:text-cyan-400 transition-colors"
+                >
+                  {cta.label}
+                </button>
+              );
+            })}
           </div>
         </div>
-      </div>
-
+       </div>
       {/* Footer stats */}
       <footer className="w-full max-w-5xl grid grid-cols-4 border-t border-cyan-900/30 p-10 z-10">
         {LANDING_COPY.stats.map((stat, i) => (
