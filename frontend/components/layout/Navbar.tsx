@@ -29,8 +29,8 @@ export default function Navbar() {
       {
         label: "Salas",
         dropdown: [
-          { label: "Sala 01", href: "/room01" },
-          { label: "Sala 02", href: "/room02" },
+          { label: "Sala 01", href: "/room/01" },
+          { label: "Sala 02", href: "/room/02" },
           { label: "Sala 03", href: "/room03" },
         ],
       },
