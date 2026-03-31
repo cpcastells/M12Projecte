@@ -6,6 +6,9 @@ import { useRouter } from "next/navigation";
 function NarrativePage() {
   const router = useRouter();
 
+  const goToRoom = () => {
+    router.push("/room/01");
+  };
 
   return (
     <main className="min-h-screen bg-abyss-bg text-cyan-50 font-mono flex flex-col">
@@ -81,7 +84,7 @@ function NarrativePage() {
           <div className="mt-6 flex flex-col gap-4">
             {/* ▶ Entrar a Sala 01 */}
             <button
-              onClick={() => router.push("/room")}
+              onClick={() => router.push("/room/01")}
               className="px-10 py-4 bg-cyan-500 text-black font-black text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(34,211,238,0.4)]"
             >
               ▶ ENTRAR SALA 01
