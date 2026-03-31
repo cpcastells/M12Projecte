@@ -21,7 +21,6 @@ export default function Navbar() {
       { label: "Inici", href: "/" },
       { label: "Entrar", href: "/narrative" },
       { label: "Secció Extra", href: "/extra" },
-
     ];
   } else {
     // Páginas de narrativa / salas / instrucciones / perfil

@@ -52,5 +52,5 @@
     "esModuleInterop": true,
     "strict": true
   },
-  "include": ["src"] // le dices a TS que solo compile src
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts"]
 }

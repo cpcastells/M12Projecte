@@ -3,16 +3,9 @@ import Navbar from "@/components/layout/Navbar";
 import { NARRATIVE_COPY } from "@/constants/copy/narrative";
 import { useRouter } from "next/navigation";
 
-const NarrativePage = () => {
-  const router = useRouter(); // Hook de Next.js para navegación programática
+function NarrativePage() {
+  const router = useRouter();
 
-  // Función para volver a la landing
-  const goToLanding = () => {
-    router.push("/");
-  };
-  const goToRoom = () => {
-    router.push("/room");
-  };
 
   return (
     <main className="min-h-screen bg-abyss-bg text-cyan-50 font-mono flex flex-col">
@@ -88,7 +81,7 @@ const NarrativePage = () => {
           <div className="mt-6 flex flex-col gap-4">
             {/* ▶ Entrar a Sala 01 */}
             <button
-              onClick={goToRoom}
+              onClick={() => router.push("/room")}
               className="px-10 py-4 bg-cyan-500 text-black font-black text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(34,211,238,0.4)]"
             >
               ▶ ENTRAR SALA 01
@@ -106,6 +99,6 @@ const NarrativePage = () => {
       </div>
     </main>
   );
-};
+}
 
 export default NarrativePage;
