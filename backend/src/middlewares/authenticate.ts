@@ -5,8 +5,7 @@ import { verifyToken } from "../utils/jwt";
 /**
  * Funció auxiliar per extreure el token del header Authorization.
  *
- * Estàndard:
- *   Authorization: Bearer <token>
+ * Estàndard: Authorization: Bearer <token>
  *
  * Si el format no és correcte, retornem null.
  */
@@ -50,6 +49,12 @@ export async function authenticate(
     // 2) Verifiquem el token (si és invàlid o caducat, llençarà error)
     // verifyToken també valida l'estructura del payload amb un type guard
     const payload = verifyToken(token);
+
+    // Assegurem que l'identificador d'usuari del token és numèric (int)
+    // // (evita problemes de tipus quan es consulta la BD amb Prisma)
+    if (typeof payload.sub !== "number") {
+      return res.status(401).json({ message: "Token payload invàlid" });
+    }
 
     // 3) Busquem l'usuari a la BD per assegurar:
     // - que existeix
