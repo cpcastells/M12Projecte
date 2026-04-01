@@ -19,7 +19,7 @@ export const LANDING_COPY = {
     },
   ],
   ctaPrimary: "Iniciar Missió",
-   ctaSecondary: [
+  ctaSecondary: [
     { label: "Instruccions", href: "/instruccions" },
     { label: "El meu perfil", href: "/profile" },
   ],

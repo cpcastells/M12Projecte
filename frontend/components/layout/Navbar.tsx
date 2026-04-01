@@ -42,12 +42,16 @@ export default function Navbar() {
 
   return (
     <nav className="w-full max-w-7xl mx-auto flex justify-between items-center p-6 z-50">
-      <div className="text-xl font-bold tracking-tighter text-cyan-400">ABYSS AI</div>
+      <div className="text-xl font-bold tracking-tighter text-cyan-400">
+        ABYSS AI
+      </div>
       <div className="flex gap-8 text-[10px] tracking-[0.3em] text-cyan-800 uppercase font-bold">
         {routesToRender.map((route) =>
           route.dropdown ? (
             <div key={route.label} className="relative group">
-              <span className="cursor-pointer hover:text-cyan-400">{route.label}</span>
+              <span className="cursor-pointer hover:text-cyan-400">
+                {route.label}
+              </span>
               <div className="absolute hidden group-hover:flex flex-col bg-cyan-950 border border-cyan-500/30 mt-2 p-2 z-50">
                 {route.dropdown.map((item) => (
                   <Link
@@ -65,7 +69,9 @@ export default function Navbar() {
               key={route.label}
               href={route.href}
               className={`cursor-pointer ${
-                pathname === route.href ? "text-cyan-400 border-b border-cyan-400 pb-1" : "hover:text-cyan-400"
+                pathname === route.href
+                  ? "text-cyan-400 border-b border-cyan-400 pb-1"
+                  : "hover:text-cyan-400"
               }`}
             >
               {route.label}
@@ -74,11 +80,19 @@ export default function Navbar() {
             <span
               key={route.label}
               onClick={route.onClick}
+<<<<<<< HEAD
               className={`cursor-pointer hover:text-cyan-400`}
+=======
+              className={`cursor-pointer ${
+                pathname === route.href
+                  ? "text-cyan-400 border-b border-cyan-400 pb-1"
+                  : "hover:text-cyan-400"
+              }`}
+>>>>>>> 2c22e7e21a5e7a33c3c5cf85443093a8465eee37
             >
               {route.label}
             </span>
-          )
+          ),
         )}
       </div>
     </nav>

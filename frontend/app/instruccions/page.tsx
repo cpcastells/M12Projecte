@@ -33,13 +33,20 @@ export default function InstructionsPage() {
 
           {/* GRID */}
           <div className="grid md:grid-cols-2 gap-6 mb-10">
-            {INSTRUCTIONS_COPY.steps.map((step: { num: string; title: string; desc: string }) => (
-              <div key={step.num} className="border border-cyan-500/20 p-6 relative">
-                <span className="absolute top-2 right-4 text-cyan-800 text-xs">{step.num}</span>
-                <h3 className="text-cyan-400 font-bold mb-2">{step.title}</h3>
-                <p className="text-cyan-700 text-sm">{step.desc}</p>
-              </div>
-            ))}
+            {INSTRUCTIONS_COPY.steps.map(
+              (step: { num: string; title: string; desc: string }) => (
+                <div
+                  key={step.num}
+                  className="border border-cyan-500/20 p-6 relative"
+                >
+                  <span className="absolute top-2 right-4 text-cyan-800 text-xs">
+                    {step.num}
+                  </span>
+                  <h3 className="text-cyan-400 font-bold mb-2">{step.title}</h3>
+                  <p className="text-cyan-700 text-sm">{step.desc}</p>
+                </div>
+              ),
+            )}
           </div>
 
           {/* ALERT */}
@@ -55,7 +62,7 @@ export default function InstructionsPage() {
             ))}
           </div>
 
-            {/* FOOTER */}
+          {/* FOOTER */}
 
           <div className="flex justify-between">
             <button
@@ -71,9 +78,9 @@ export default function InstructionsPage() {
             >
               ▶ {INSTRUCTIONS_COPY.cta.primary}
             </button>
-            </div>
           </div>
         </div>
-      </main>
+      </div>
+    </main>
   );
 }

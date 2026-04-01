@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 export default function LandingPage() {
   const router = useRouter();
 
-    // Función para ir a narrativa
+  // Función para ir a narrativa
   const goToNarrative = () => {
     router.push("/narrative");
   };
@@ -59,7 +59,7 @@ export default function LandingPage() {
           ))}
         </div>
 
-      {/* Botons d'acció */}
+        {/* Botons d'acció */}
         <div className="mt-16 flex flex-col items-center gap-6 w-full">
           <button
             onClick={goToNarrative} // <-- Esto redirige a /narrative
@@ -69,27 +69,29 @@ export default function LandingPage() {
               ▶ {LANDING_COPY.ctaPrimary}
             </span>
           </button>
-          </div>
-
-          <div className="flex gap-12 text-[9px] tracking-[0.3em] text-cyan-900 uppercase font-bold">
-            {LANDING_COPY.ctaSecondary.map((cta) => {
-              // Mapear label a ruta
-              let target = "/";
-              if (cta.label.toLowerCase() === "instruccions") target = "/instruccions";
-              if (cta.label.toLowerCase() === "el meu perfil") target = "/profile";
-
-              return (
-                <button
-                  key={cta.label}
-                  onClick={() => router.push(target)}
-                  className="hover:text-cyan-400 transition-colors"
-                >
-                  {cta.label}
-                </button>
-              );
-            })}
-          </div>
         </div>
+
+        <div className="flex gap-12 text-[9px] tracking-[0.3em] text-cyan-900 uppercase font-bold">
+          {LANDING_COPY.ctaSecondary.map((cta) => {
+            // Mapear label a ruta
+            let target = "/";
+            if (cta.label.toLowerCase() === "instruccions")
+              target = "/instruccions";
+            if (cta.label.toLowerCase() === "el meu perfil")
+              target = "/profile";
+
+            return (
+              <button
+                key={cta.label}
+                onClick={() => router.push(target)}
+                className="hover:text-cyan-400 transition-colors"
+              >
+                {cta.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
       {/* Footer stats */}
       <footer className="w-full max-w-5xl grid grid-cols-4 border-t border-cyan-900/30 p-10 z-10">

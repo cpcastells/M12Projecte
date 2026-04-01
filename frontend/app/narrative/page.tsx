@@ -51,7 +51,9 @@ function NarrativePage() {
               <span>{NARRATIVE_COPY.header.date}</span>
               <span>—</span>
               <span>{NARRATIVE_COPY.header.time}</span>
-              <span className="text-cyan-600">{NARRATIVE_COPY.header.encryption}</span>
+              <span className="text-cyan-600">
+                {NARRATIVE_COPY.header.encryption}
+              </span>
             </div>
           </header>
 
@@ -72,7 +74,9 @@ function NarrativePage() {
                 {line.text}
                 {"highlight" in line && (
                   <>
-                    <span className={line.highlightClass}>{line.highlight}</span>
+                    <span className={line.highlightClass}>
+                      {line.highlight}
+                    </span>
                     {line.suffix}
                   </>
                 )}

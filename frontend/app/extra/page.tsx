@@ -2,7 +2,7 @@
 
 import Navbar from "@/components/layout/Navbar";
 
- function ExtraPage() {
+function ExtraPage() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center">
       <Navbar />
