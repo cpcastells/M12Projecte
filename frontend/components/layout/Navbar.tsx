@@ -31,7 +31,7 @@ export default function Navbar() {
         dropdown: [
           { label: "Sala 01", href: "/room/01" },
           { label: "Sala 02", href: "/room/02" },
-          { label: "Sala 03", href: "/room03" },
+          { label: "Sala 03", href: "/room/03" },
         ],
       },
       { label: "Instruccions", href: "/instruccions" },
@@ -80,11 +80,12 @@ export default function Navbar() {
             <span
               key={route.label}
               onClick={route.onClick}
+<<<<<<< HEAD
+              className={`cursor-pointer hover:text-cyan-400`}
+=======
               className={`cursor-pointer ${
                 pathname === route.href
-                  ? "text-cyan-400 border-b border-cyan-400 pb-1"
-                  : "hover:text-cyan-400"
-              }`}
+
             >
               {route.label}
             </span>
