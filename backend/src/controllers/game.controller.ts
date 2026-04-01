@@ -57,7 +57,7 @@ export async function getMyLastGame(req: Request, res: Response) {
     const userId = Number(req.user.id);
 
     const game = await prisma.game.findFirst({
-      where: { userId: req.user.id },
+      where: { userId },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,
