@@ -85,10 +85,7 @@ export default function Navbar() {
 =======
               className={`cursor-pointer ${
                 pathname === route.href
-                  ? "text-cyan-400 border-b border-cyan-400 pb-1"
-                  : "hover:text-cyan-400"
-              }`}
->>>>>>> 2c22e7e21a5e7a33c3c5cf85443093a8465eee37
+
             >
               {route.label}
             </span>
