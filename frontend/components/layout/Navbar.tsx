@@ -80,12 +80,7 @@ export default function Navbar() {
             <span
               key={route.label}
               onClick={route.onClick}
-<<<<<<< HEAD
               className={`cursor-pointer hover:text-cyan-400`}
-=======
-              className={`cursor-pointer ${
-                pathname === route.href
-
             >
               {route.label}
             </span>

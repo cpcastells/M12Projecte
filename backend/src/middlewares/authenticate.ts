@@ -62,7 +62,7 @@ export async function authenticate(
     // - que no estem treballant amb dades obsoletes
     const user = await prisma.user.findUnique({
       where: { id: payload.sub }, // payload.sub és l'id de l'usuari
-      select: { id: true, email: true, role: true }, // retornem només el necessari
+      select: { id: true, email: true, username: true, role: true },
     });
 
     // Si el token és vàlid però l'usuari no existeix, deneguem accés
