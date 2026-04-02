@@ -37,7 +37,6 @@ export const INSTRUCTIONS_COPY = {
   ],
 
   cta: {
-    primary: "INICIAR MISSIÓ",
-    secondary: "Tornar a l'inici",
+      secondary: "Tornar a l'inici",
   },
 };
