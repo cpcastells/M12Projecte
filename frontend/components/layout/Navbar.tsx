@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { PATHS } from "@/constants/paths";
+import { useAuth } from "@/context/AuthContext";
 
 interface NavRoute {
   label: string;
@@ -13,6 +14,7 @@ interface NavRoute {
 export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { logout } = useAuth();
 
   let routesToRender: NavRoute[] = [];
 
@@ -37,7 +39,13 @@ export default function Navbar() {
       { label: "Instruccions", href: PATHS.INSTRUCCIONS },
       { label: "Perfil", href: PATHS.PROFILE },
       { label: "Ajuda", href: PATHS.AJUDA },
-      { label: "Logout", onClick: () => router.push(PATHS.HOME) },
+      {
+        label: "Logout",
+        onClick: () => {
+          logout();
+          router.push(PATHS.HOME);
+        },
+      },
     ];
   }
 

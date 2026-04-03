@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, DEFAULT_USER } from "@/constants/copy/profile";
 import { PATHS } from "@/constants/paths";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ProfilePage() {
   const router = useRouter();
+  const { logout } = useAuth();
   const [user, setUser] = useState<User>(DEFAULT_USER);
   const [form, setForm] = useState<User>({ ...DEFAULT_USER });
   const [editing, setEditing] = useState(false);
@@ -211,7 +213,7 @@ export default function ProfilePage() {
               <button
                 className="btn-secondary w-full border-red-600 text-red-400"
                 onClick={() => {
-                  localStorage.removeItem("token");
+                  logout();
                   router.push(PATHS.LOGIN);
                 }}
               >
