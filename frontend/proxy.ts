@@ -32,7 +32,7 @@ export const proxy = (request: NextRequest) => {
       // Decodifiquem el payload del JWT (sense verificar signatura — és responsabilitat del backend)
       const payload = JSON.parse(atob(token.split(".")[1]));
       if (payload.role !== "admin") {
-        return NextResponse.redirect(new URL(PATHS.LOGIN, request.url));
+        return NextResponse.redirect(new URL(PATHS.HOME, request.url));
       }
     } catch {
       return NextResponse.redirect(new URL(PATHS.LOGIN, request.url));
