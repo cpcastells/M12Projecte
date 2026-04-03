@@ -212,7 +212,7 @@ export default function ProfilePage() {
 
               <button
                 className="btn-secondary w-full"
-                onClick={() => router.push("/narrative ")}
+                onClick={() => router.push(PATHS.NARRATIVE)}
               >
                 Nova Partida
               </button>
