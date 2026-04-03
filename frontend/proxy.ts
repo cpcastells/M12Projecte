@@ -14,7 +14,7 @@ import { PATHS } from "@/constants/paths";
  * - Rutes PROTECTED_ROUTES + sense token → redirigeix a /login
  * - Rutes ADMIN_ROUTES + sense token o rol no admin → redirigeix a /login
  */
-export const middleware = (request: NextRequest) => {
+export const proxy = (request: NextRequest) => {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("auth-token")?.value;
 
