@@ -20,6 +20,9 @@ export const LANDING_COPY = {
   ],
   ctaPrimary: "Iniciar Missió",
   ctaSecundary: "Registrar-se",
+  ctaRegister: "Sol·licitar Accés",
+  ctaLogin: "Identificar-se",
+  ctaLoginHint: "// AGENT NO IDENTIFICAT — ACCÉS RESTRINGIT",
 
   stats: [
     { value: "3", label: "Sales", accent: false },
