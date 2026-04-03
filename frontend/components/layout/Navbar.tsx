@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { PATHS } from "@/constants/paths";
 
 interface NavRoute {
   label: string;
@@ -15,29 +16,28 @@ export default function Navbar() {
 
   let routesToRender: NavRoute[] = [];
 
-  if (pathname === "/") {
+  if (pathname === PATHS.HOME) {
     // Landing page
     routesToRender = [
-      { label: "Entrar", href: "/narrative" },
-      { label: "Registrar-se", href: "/register" },
-
+      { label: "Entrar", href: PATHS.NARRATIVE },
+      { label: "Registrar-se", href: PATHS.REGISTER },
     ];
   } else {
     // Páginas de narrativa / salas / instrucciones / perfil
     routesToRender = [
-      { label: "Narrativa", href: "/narrative" },
+      { label: "Narrativa", href: PATHS.NARRATIVE },
       {
         label: "Salas",
         dropdown: [
-          { label: "Sala 01", href: "/room/01" },
-          { label: "Sala 02", href: "/room/02" },
-          { label: "Sala 03", href: "/room/03" },
+          { label: "Sala 01", href: `${PATHS.ROOM}/01` },
+          { label: "Sala 02", href: `${PATHS.ROOM}/02` },
+          { label: "Sala 03", href: `${PATHS.ROOM}/03` },
         ],
       },
-      { label: "Instruccions", href: "/instruccions" },
-      { label: "Perfil", href: "/profile" },
-      {label: "Ajuda", href: "/ajuda" },
-      { label: "Logout", onClick: () => router.push("/") },
+      { label: "Instruccions", href: PATHS.INSTRUCCIONS },
+      { label: "Perfil", href: PATHS.PROFILE },
+      { label: "Ajuda", href: PATHS.AJUDA },
+      { label: "Logout", onClick: () => router.push(PATHS.HOME) },
     ];
   }
 
@@ -85,8 +85,7 @@ export default function Navbar() {
             >
               {route.label}
             </span>
-          )
-
+          ),
         )}
       </div>
     </nav>

@@ -1,3 +1,5 @@
+import { PATHS } from "@/constants/paths";
+
 export interface NavRoute {
   href: string;
   label: string;
@@ -13,14 +15,14 @@ export interface NavRoute {
  * les llistes de rutes protegides del middleware.
  */
 export const NAV_ROUTES: NavRoute[] = [
-  { href: "/narrative", label: "Narrativa", protected: true },
-  { href: "/room", label: "Salas", protected: true },
-  { href: "/instruccions", label: "Instruccions", protected: true },
-  { href: "/ajuda", label: "Ajuda", protected: true },
-  { href: "/profile", label: "Perfil", protected: true },
-  { href: "/admin", label: "Admin", adminOnly: true },
-  { href: "/login", label: "Entrar" },
-  { href: "/register", label: "Registrar-se" },
+  { href: PATHS.NARRATIVE, label: "Narrativa", protected: true },
+  { href: PATHS.ROOM, label: "Salas", protected: true },
+  { href: PATHS.INSTRUCCIONS, label: "Instruccions", protected: true },
+  { href: PATHS.AJUDA, label: "Ajuda", protected: true },
+  { href: PATHS.PROFILE, label: "Perfil", protected: true },
+  { href: PATHS.ADMIN, label: "Admin", adminOnly: true },
+  { href: PATHS.LOGIN, label: "Entrar" },
+  { href: PATHS.REGISTER, label: "Registrar-se" },
 ];
 
 /** Rutes que requereixen usuari autenticat */
@@ -34,4 +36,4 @@ export const ADMIN_ROUTES = NAV_ROUTES.filter((r) => r.adminOnly).map(
 );
 
 /** Rutes d'autenticació: redirigeixen a / si ja hi ha sessió activa */
-export const AUTH_ROUTES = ["/login", "/register"];
+export const AUTH_ROUTES = [PATHS.LOGIN, PATHS.REGISTER];

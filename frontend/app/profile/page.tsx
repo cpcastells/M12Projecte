@@ -3,6 +3,7 @@ import Navbar from "@/components/layout/Navbar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, DEFAULT_USER } from "@/constants/copy/profile";
+import { PATHS } from "@/constants/paths";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -211,7 +212,7 @@ export default function ProfilePage() {
                 className="btn-secondary w-full border-red-600 text-red-400"
                 onClick={() => {
                   localStorage.removeItem("token");
-                  router.push("/login");
+                  router.push(PATHS.LOGIN);
                 }}
               >
                 Tancar sessió
