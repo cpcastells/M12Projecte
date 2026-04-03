@@ -49,6 +49,7 @@ const decodeToken = (token: string): AuthUser | null => {
  * S'usa com a inicialitzador lazy de useState per evitar efectes.
  */
 const getInitialUser = (): AuthUser | null => {
+  if (typeof window === "undefined") return null;
   const token = localStorage.getItem("token");
   if (!token) return null;
 
