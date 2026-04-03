@@ -12,6 +12,7 @@ import {
   validateUsername,
 } from "@/utils/validation";
 import useRegister from "@/hooks/useRegister";
+import { PATHS } from "@/constants/paths";
 import { ApiError } from "@/services/apiClient";
 
 const RegisterPage = () => {
@@ -85,7 +86,7 @@ const RegisterPage = () => {
     mutate(
       { email, password, username },
       {
-        onSuccess: () => router.push("/login"),
+        onSuccess: () => router.push(PATHS.LOGIN),
         onError: (error) => {
           setApiError(
             error instanceof ApiError

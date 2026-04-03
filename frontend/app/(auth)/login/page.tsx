@@ -9,10 +9,12 @@ import { LOGIN_COPY } from "@/constants/copy/auth";
 import { validateEmail, validatePassword } from "@/utils/validation";
 import useLogin from "@/hooks/useLogin";
 import { ApiError } from "@/services/apiClient";
+import { useAuth } from "@/context/AuthContext";
 
 const LoginPage = () => {
   const router = useRouter();
   const { mutate, isPending } = useLogin();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -59,7 +61,10 @@ const LoginPage = () => {
     mutate(
       { email, password },
       {
-        onSuccess: () => router.push("/"),
+        onSuccess: (data) => {
+          login(data.token);
+          router.push("/");
+        },
         onError: (error) => {
           setApiError(
             error instanceof ApiError

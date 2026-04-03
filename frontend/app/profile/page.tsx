@@ -3,11 +3,22 @@ import Navbar from "@/components/layout/Navbar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { User, DEFAULT_USER } from "@/constants/copy/profile";
+import { PATHS } from "@/constants/paths";
+import { useAuth } from "@/context/AuthContext";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<User>(DEFAULT_USER);
-  const [form, setForm] = useState<User>({ ...DEFAULT_USER });
+  const { logout, user: authUser } = useAuth();
+  const [user, setUser] = useState<User>({
+    ...DEFAULT_USER,
+    username: authUser?.username ?? DEFAULT_USER.username,
+    email: authUser?.email ?? DEFAULT_USER.email,
+  });
+  const [form, setForm] = useState<User>({
+    ...DEFAULT_USER,
+    username: authUser?.username ?? DEFAULT_USER.username,
+    email: authUser?.email ?? DEFAULT_USER.email,
+  });
   const [editing, setEditing] = useState(false);
   const [success, setSuccess] = useState(false);
 
@@ -201,7 +212,7 @@ export default function ProfilePage() {
 
               <button
                 className="btn-secondary w-full"
-                onClick={() => router.push("/narrative ")}
+                onClick={() => router.push(PATHS.NARRATIVE)}
               >
                 Nova Partida
               </button>
@@ -210,8 +221,8 @@ export default function ProfilePage() {
               <button
                 className="btn-secondary w-full border-red-600 text-red-400"
                 onClick={() => {
-                  localStorage.removeItem("token");
-                  router.push("/login");
+                  logout();
+                  router.push(PATHS.LOGIN);
                 }}
               >
                 Tancar sessió

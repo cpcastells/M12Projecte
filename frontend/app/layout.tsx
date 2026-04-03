@@ -4,6 +4,7 @@ import "./globals.css";
 import React from "react";
 import FloatingDust from "@/components/effects/FloatingDust/FloatingDust";
 import QueryProvider from "@/providers/QueryProvider";
+import { AuthProvider } from "@/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,7 +54,9 @@ export default function RootLayout({
 
         {/* El contenido de las páginas con un z-index para que esté por encima de los efectos */}
         <QueryProvider>
-          <div className="relative z-10 flex-1 flex flex-col">{children}</div>
+          <AuthProvider>
+            <div className="relative z-10 flex-1 flex flex-col">{children}</div>
+          </AuthProvider>
         </QueryProvider>
       </body>
     </html>

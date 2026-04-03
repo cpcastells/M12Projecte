@@ -56,6 +56,7 @@ export async function login(req: Request, res: Response) {
     const token = signToken({
       sub: user.id,
       email: user.email,
+      username: user.username,
       role: user.role,
     });
     return res.status(200).json({

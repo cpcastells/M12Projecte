@@ -9,6 +9,7 @@ import type { SignOptions } from "jsonwebtoken";
 export type JwtPayload = {
   sub: number; // Identificador únic de l'usuari (id)
   email: string; // Email de l'usuari autenticat
+  username: string; // Nom d'usuari
   role: string; // Rol de l'usuari (USER, ADMIN)
 };
 
@@ -54,6 +55,7 @@ function isMyJwtPayload(decoded: unknown): decoded is JwtPayload {
   return (
     typeof d.sub === "number" &&
     typeof d.email === "string" &&
+    typeof d.username === "string" &&
     typeof d.role === "string"
   );
 }

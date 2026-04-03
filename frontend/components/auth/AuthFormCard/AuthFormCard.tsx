@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ComponentPropsWithoutRef, ReactNode } from "react";
+import { PATHS } from "@/constants/paths";
 
 interface AuthFormCardProps {
   title: string;
@@ -20,6 +21,12 @@ const AuthFormCard = ({
 }: AuthFormCardProps) => (
   <div className="min-h-screen flex items-center justify-center bg-abyss-bg text-cyan-50">
     <div className="bg-abyss-panel p-8 rounded-2xl shadow-lg w-full max-w-md">
+      <Link
+        href={PATHS.HOME}
+        className="inline-block mb-4 text-xs text-cyan-700 hover:text-cyan-400 transition-colors tracking-widest uppercase"
+      >
+        ← Inici
+      </Link>
       <h1 className="text-2xl font-bold mb-6 text-center">{title}</h1>
 
       <form className="flex flex-col gap-4" onSubmit={onSubmit}>
