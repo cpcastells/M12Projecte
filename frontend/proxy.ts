@@ -12,7 +12,8 @@ import { PATHS } from "@/constants/paths";
  *
  * - Rutes AUTH_ROUTES + token present → redirigeix a /
  * - Rutes PROTECTED_ROUTES + sense token → redirigeix a /login
- * - Rutes ADMIN_ROUTES + sense token o rol no admin → redirigeix a /login
+ * - Rutes ADMIN_ROUTES + sense token o token invàlid → redirigeix a /login
+ * - Rutes ADMIN_ROUTES + rol no admin → redirigeix a /
  */
 export const proxy = (request: NextRequest) => {
   const { pathname } = request.nextUrl;
