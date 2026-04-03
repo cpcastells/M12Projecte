@@ -1,11 +1,14 @@
 "use client";
 
 import Navbar from "@/components/layout/Navbar";
+import GlitchText from "@/components/effects/GlitchText/GlitchText";
 import { LANDING_COPY } from "@/constants/copy/landing";
+import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
   const router = useRouter();
+  const { isAuthenticated } = useAuth();
 
   // Función para ir a narrativa
   const goToNarrative = () => {
@@ -61,14 +64,37 @@ export default function LandingPage() {
 
         {/* Botons d'acció */}
         <div className="mt-16 flex flex-col items-center gap-6 w-full">
-          <button
-            onClick={goToNarrative} // <-- Esto redirige a /narrative
-            className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black"
-          >
-            <span className="relative z-10 font-bold">
-              ▶ {LANDING_COPY.ctaPrimary}
-            </span>
-          </button>
+          {isAuthenticated ? (
+            <button
+              onClick={goToNarrative}
+              className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black cursor-pointer"
+            >
+              <span className="relative z-10 font-bold">
+                ▶ {LANDING_COPY.ctaPrimary}
+              </span>
+            </button>
+          ) : (
+            <div className="flex flex-col items-center gap-4">
+              <GlitchText
+                text={LANDING_COPY.ctaLoginHint}
+                className="text-[10px] tracking-[0.3em] text-cyan-600 uppercase"
+              />
+              <div className="flex flex-col sm:flex-row items-center gap-4">
+                <a
+                  href="/register"
+                  className="px-16 py-4 border border-cyan-400 bg-cyan-400 text-black text-xs tracking-[0.4em] uppercase font-bold transition-all hover:bg-cyan-300"
+                >
+                  ▶ {LANDING_COPY.ctaRegister}
+                </a>
+                <a
+                  href="/login"
+                  className="px-16 py-4 border border-cyan-400/50 text-cyan-600 text-xs tracking-[0.4em] uppercase font-bold transition-all hover:border-cyan-400 hover:text-cyan-400"
+                >
+                  {LANDING_COPY.ctaLogin}
+                </a>
+              </div>
+            </div>
+          )}
         </div>
       </div>
       {/* Footer stats */}
