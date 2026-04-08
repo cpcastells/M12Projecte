@@ -2,12 +2,11 @@
   Warnings:
 
   - You are about to drop the column `currentRoom` on the `Game` table. All the data in the column will be lost.
-  - Added the required column `currentRoomId` to the `Game` table without a default value. This is not possible if the table is not empty.
 
 */
 -- AlterTable
 ALTER TABLE "Game" DROP COLUMN "currentRoom",
-ADD COLUMN     "currentRoomId" INTEGER NOT NULL;
+ADD COLUMN     "currentRoomId" INTEGER;
 
 -- CreateTable
 CREATE TABLE "Room" (
@@ -64,7 +63,7 @@ CREATE INDEX "Game_userId_idx" ON "Game"("userId");
 CREATE INDEX "Game_currentRoomId_idx" ON "Game"("currentRoomId");
 
 -- AddForeignKey
-ALTER TABLE "Game" ADD CONSTRAINT "Game_currentRoomId_fkey" FOREIGN KEY ("currentRoomId") REFERENCES "Room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Game" ADD CONSTRAINT "Game_currentRoomId_fkey" FOREIGN KEY ("currentRoomId") REFERENCES "Room"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "InteractiveObject" ADD CONSTRAINT "InteractiveObject_roomId_fkey" FOREIGN KEY ("roomId") REFERENCES "Room"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
