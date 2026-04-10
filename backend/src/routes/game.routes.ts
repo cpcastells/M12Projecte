@@ -1,6 +1,12 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/authenticate";
-import { getMyActiveGame, getMyLastGame } from "../controllers/game.controller";
+import {
+  getMyActiveGame,
+  getMyLastGame,
+  startGame,
+  updateGameStatus,
+  submitPuzzleAnswer,
+} from "../controllers/game.controller";
 
 const router = Router();
 
@@ -9,8 +15,9 @@ const router = Router();
  * - Cal estar autenticat (JWT) per consultar la teva partida.
  */
 router.get("/me/active", authenticate, getMyActiveGame);
-
-// Última partida (activa o no)
 router.get("/me/last", authenticate, getMyLastGame);
+router.post("/start", authenticate, startGame);
+router.patch("/:id/status", authenticate, updateGameStatus);
+router.post("/:id/puzzle", authenticate, submitPuzzleAnswer);
 
 export default router;

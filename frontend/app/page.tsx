@@ -1,19 +1,45 @@
 "use client";
 
+import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import GlitchText from "@/components/effects/GlitchText/GlitchText";
 import { LANDING_COPY } from "@/constants/copy/landing";
+import { PATHS } from "@/constants/paths";
 import { useAuth } from "@/context/AuthContext";
+import { useGame } from "@/context/GameContext";
 import { useRouter } from "next/navigation";
 
 export default function LandingPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { activeGame, lastGame, startGame, abandonGame, isLoadingGame } =
+    useGame();
+  const [showAbandonModal, setShowAbandonModal] = useState(false);
+  const [isStarting, setIsStarting] = useState(false);
 
-  // Función para ir a narrativa
-  const goToNarrative = () => {
-    router.push("/narrative");
+  const handleStartGame = async () => {
+    setIsStarting(true);
+    try {
+      await startGame();
+      router.push(PATHS.NARRATIVE);
+    } finally {
+      setIsStarting(false);
+    }
   };
+
+  const handleAbandonAndStart = async () => {
+    setIsStarting(true);
+    try {
+      await abandonGame();
+      await startGame();
+      setShowAbandonModal(false);
+      router.push(PATHS.NARRATIVE);
+    } finally {
+      setIsStarting(false);
+    }
+  };
+
+  const isCompleted = !activeGame && lastGame?.status === "completed";
 
   return (
     <main className="min-h-screen text-cyan-50 font-mono flex flex-col items-center selection:bg-cyan-950 overflow-hidden relative">
@@ -64,16 +90,7 @@ export default function LandingPage() {
 
         {/* Botons d'acció */}
         <div className="mt-16 flex flex-col items-center gap-6 w-full">
-          {isAuthenticated ? (
-            <button
-              onClick={goToNarrative}
-              className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black cursor-pointer"
-            >
-              <span className="relative z-10 font-bold">
-                ▶ {LANDING_COPY.ctaPrimary}
-              </span>
-            </button>
-          ) : (
+          {!isAuthenticated ? (
             <div className="flex flex-col items-center gap-4">
               <GlitchText
                 text={LANDING_COPY.ctaLoginHint}
@@ -94,8 +111,83 @@ export default function LandingPage() {
                 </a>
               </div>
             </div>
+          ) : activeGame ? (
+            <div className="flex flex-col items-center gap-4">
+              <button
+                onClick={() =>
+                  router.push(`${PATHS.ROOM}/${activeGame.currentRoomId}`)
+                }
+                className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black cursor-pointer"
+              >
+                <span className="relative z-10 font-bold">
+                  ▶ Continuar Missió
+                </span>
+              </button>
+              <button
+                onClick={() => setShowAbandonModal(true)}
+                className="px-12 py-3 border border-cyan-900/50 text-cyan-800 text-[10px] tracking-[0.3em] uppercase transition-all hover:border-cyan-600 hover:text-cyan-600 cursor-pointer"
+              >
+                Nova Partida
+              </button>
+            </div>
+          ) : isCompleted ? (
+            <div className="flex flex-col items-center gap-4">
+              <button
+                onClick={handleStartGame}
+                disabled={isStarting}
+                className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black cursor-pointer disabled:opacity-50"
+              >
+                <span className="relative z-10 font-bold">▶ Nova Partida</span>
+              </button>
+              <button
+                onClick={() => router.push(PATHS.PROFILE)}
+                className="px-12 py-3 border border-cyan-900/50 text-cyan-800 text-[10px] tracking-[0.3em] uppercase transition-all hover:border-cyan-600 hover:text-cyan-600 cursor-pointer"
+              >
+                Veure Estadístiques
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleStartGame}
+              disabled={isStarting || isLoadingGame}
+              className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black cursor-pointer disabled:opacity-50"
+            >
+              <span className="relative z-10 font-bold">
+                ▶ {LANDING_COPY.ctaPrimary}
+              </span>
+            </button>
           )}
         </div>
+
+        {/* Modal d'abandonament */}
+        {showAbandonModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
+            <div className="border border-cyan-400/30 bg-abyss-bg p-8 max-w-md text-center">
+              <p className="text-cyan-400 text-xs tracking-[0.3em] uppercase mb-2">
+                ⚠ Partida en curs
+              </p>
+              <p className="text-cyan-600 text-sm mb-8">
+                Tens una partida activa a la Sala {activeGame?.currentRoom.code}
+                . Si en comences una de nova, la perdràs.
+              </p>
+              <div className="flex gap-4 justify-center">
+                <button
+                  onClick={() => setShowAbandonModal(false)}
+                  className="px-8 py-3 border border-cyan-400/50 text-cyan-400 text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400/10 cursor-pointer"
+                >
+                  Continuar l&apos;actual
+                </button>
+                <button
+                  onClick={handleAbandonAndStart}
+                  disabled={isStarting}
+                  className="px-8 py-3 border border-red-500/50 text-red-400 text-[10px] tracking-[0.3em] uppercase hover:bg-red-500/10 cursor-pointer disabled:opacity-50"
+                >
+                  Abandonar i nova
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
       {/* Footer stats */}
       <footer className="w-full max-w-5xl grid grid-cols-4 border-t border-cyan-900/30 p-10 z-10">

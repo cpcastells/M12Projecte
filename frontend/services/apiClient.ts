@@ -24,9 +24,20 @@ export const request = async <T>(
   method: HttpMethod = "GET",
   body?: unknown,
 ): Promise<T> => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (typeof window !== "undefined") {
+    const token = localStorage.getItem("token");
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+  }
+
   const options: RequestInit = {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers,
   };
 
   if (body !== undefined) {

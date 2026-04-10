@@ -5,6 +5,7 @@ import authRouter from "./routes/auth.routes";
 import gameRouter from "./routes/game.routes";
 import profileRoutes from "./routes/profile.routes";
 import adminRoutes from "./routes/admin.routes";
+import roomRouter from "./routes/room.routes";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use("/auth", authRouter);
 app.use("/game", gameRouter);
 app.use("/profile", profileRoutes);
 app.use("/admin", adminRoutes);
+app.use("/room", roomRouter);
 
 app.get("/", (req, res) => {
   res.send("Backend funcionando 🚀");
