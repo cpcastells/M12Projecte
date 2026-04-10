@@ -39,10 +39,14 @@ model Room {
   description String
   image       String?
   isInitial   Boolean @default(false)
+  order       Int? // nou camp-> ordre de progressió de sales
 
   objects InteractiveObject[]
   puzzle  Puzzle?
   games   Game[]
+
+  @@unique([order]) // evitar ordres duplicats
+  @@index([order]) // per ordenar o consultar ràpid
 }
 
 model InteractiveObject {
@@ -72,4 +76,17 @@ model Puzzle {
   statement String
   solution  String
   reward    String?
+  hints     Hint[]
+}
+
+model Hint {
+  id       Int    @id @default(autoincrement())
+  puzzleId Int
+  puzzle   Puzzle @relation(fields: [puzzleId], references: [id], onDelete: Cascade)
+
+  text  String
+  order Int    @default(1)
+
+  @@unique([puzzleId, order])
+  @@index([puzzleId])
 }
