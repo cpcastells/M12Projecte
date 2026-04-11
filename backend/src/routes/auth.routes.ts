@@ -1,8 +1,7 @@
 import { Router } from "express";
 import { login, register } from "../controllers/auth.controller";
 import { authenticate } from "../middlewares/authenticate";
-import { authorizeRoles } from "../middlewares/authorizeRoles";
-import { ROLES } from "../constants/roles";
+import { requireAdmin } from "../middlewares/requireAdmin";
 
 const router = Router();
 
@@ -27,15 +26,11 @@ router.get("/me", authenticate, (req, res) => {
  * Exemple de ruta protegida per rol ADMIN (Task #60).
  * Només accessible si l'usuari autenticat té rol d'administrador.
  */
-router.get(
-  "/admin-only",
-  authenticate,
-  authorizeRoles(ROLES.ADMIN),
-  (req, res) => {
-    return res.status(200).json({
-      message: "OK admin",
-    });
-  },
-);
+router.get("/admin-only", authenticate, requireAdmin, (req, res) => {
+  return res.status(200).json({
+    message: "OK admin",
+    user: req.user,
+  });
+});
 
 export default router;

@@ -13,63 +13,80 @@ model User {
   passwordHash String
   role         String @default("user")
 
-  games        Game[]
+  games Game[]
 }
 
 model Game {
-  id            Int      @id @default(autoincrement())
-  userId        Int
-  user          User     @relation(fields: [userId], references: [id])
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
 
   status        String   @default("active")
-  currentRoomId Int?
-  currentRoom   Room?     @relation(fields: [currentRoomId], references: [id])
+  currentRoomId Int
+  currentRoom   Room     @relation(fields: [currentRoomId], references: [id])
 
-  state         Json?
-  createdAt     DateTime @default(now())
+  state     Json?
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([currentRoomId])
 }
 
 model Room {
-  id          Int                 @id @default(autoincrement())
-  code        String              @unique
+  id          Int     @id @default(autoincrement())
+  code        String  @unique
   name        String
   description String
   image       String?
-  isInitial   Boolean             @default(false)
+  isInitial   Boolean @default(false)
+  order       Int? // nou camp-> ordre de progressió de sales
 
-  objects     InteractiveObject[]
-  puzzle      Puzzle?
-  games       Game[]
+  objects InteractiveObject[]
+  puzzle  Puzzle?
+  games   Game[]
+
+  @@unique([order]) // evitar ordres duplicats
+  @@index([order]) // per ordenar o consultar ràpid
 }
 
 model InteractiveObject {
-  id            Int      @id @default(autoincrement())
-  roomId        Int
-  room          Room     @relation(fields: [roomId], references: [id])
+  id     Int  @id @default(autoincrement())
+  roomId Int
+  room   Room @relation(fields: [roomId], references: [id])
 
-  name          String
-  description   String
-  type          String
+  name        String
+  description String
+  type        String
 
-  isInteractive Boolean  @default(true)
-  isVisible     Boolean  @default(true)
-  isCollected   Boolean  @default(false)
+  isInteractive Boolean @default(true)
+  isVisible     Boolean @default(true)
+  isCollected   Boolean @default(false)
 
-  action        String?
+  action String?
 
   @@index([roomId])
 }
 
 model Puzzle {
-  id        Int    @id @default(autoincrement())
-  roomId    Int    @unique
-  room      Room   @relation(fields: [roomId], references: [id])
+  id     Int  @id @default(autoincrement())
+  roomId Int  @unique
+  room   Room @relation(fields: [roomId], references: [id])
 
   title     String
   statement String
   solution  String
   reward    String?
+  hints     Hint[]
+}
+
+model Hint {
+  id       Int    @id @default(autoincrement())
+  puzzleId Int
+  puzzle   Puzzle @relation(fields: [puzzleId], references: [id], onDelete: Cascade)
+
+  text  String
+  order Int    @default(1)
+
+  @@unique([puzzleId, order])
+  @@index([puzzleId])
 }

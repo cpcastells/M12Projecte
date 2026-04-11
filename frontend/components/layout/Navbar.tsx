@@ -38,7 +38,7 @@ export default function Navbar() {
       },
       { label: "Instruccions", href: PATHS.INSTRUCCIONS },
       { label: "Perfil", href: PATHS.PROFILE },
-      { label: "Ajuda", href: PATHS.AJUDA },
+
       {
         label: "Logout",
         onClick: () => {
