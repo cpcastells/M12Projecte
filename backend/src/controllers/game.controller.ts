@@ -127,6 +127,84 @@ export async function startGame(req: Request, res: Response) {
     });
   }
 }
+/**
+ * Guarda el progrés de la partida activa de l'usuari.
+ */
+export async function saveGameProgress(req: Request, res: Response) {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Usuari no autenticat" });
+    }
+
+    const userId = Number(req.user.id);
+    const {
+      gameId,
+      currentRoomId,
+      inventory,
+      solvedPuzzles,
+      collectedObjects,
+      status,
+    } = req.body;
+
+    if (!gameId) {
+      return res.status(400).json({
+        message: "Falta gameId",
+      });
+    }
+
+    const existingGame = await prisma.game.findFirst({
+      where: {
+        id: Number(gameId),
+        userId,
+      },
+    });
+
+    if (!existingGame) {
+      return res.status(404).json({
+        message: "Partida no trobada",
+      });
+    }
+
+    const updatedGame = await prisma.game.update({
+      where: {
+        id: Number(gameId),
+      },
+      data: {
+        currentRoomId:
+          currentRoomId !== undefined
+            ? Number(currentRoomId)
+            : existingGame.currentRoomId,
+        status: status ?? existingGame.status,
+        state: {
+          inventory: Array.isArray(inventory) ? inventory : [],
+          solvedPuzzles: Array.isArray(solvedPuzzles) ? solvedPuzzles : [],
+          collectedObjects: Array.isArray(collectedObjects)
+            ? collectedObjects
+            : [],
+        },
+      },
+      include: {
+        currentRoom: {
+          include: {
+            objects: true,
+            puzzle: true,
+          },
+        },
+      },
+    });
+
+    return res.status(200).json({
+      message: "Progrés guardat correctament",
+      game: updatedGame,
+    });
+  } catch (error) {
+    console.error("Error guardant el progrés:", error);
+
+    return res.status(500).json({
+      message: "Error intern del servidor",
+    });
+  }
+}
 
 /**
  * Retorna la partida activa de l'usuari autenticat.
