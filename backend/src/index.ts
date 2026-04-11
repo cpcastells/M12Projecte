@@ -10,7 +10,11 @@ dotenv.config();
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  }),
+);
 app.use(express.json());
 app.use("/auth", authRouter);
 app.use("/game", gameRouter);
@@ -19,6 +23,10 @@ app.use("/admin", adminRoutes);
 
 app.get("/", (req, res) => {
   res.send("Backend funcionando 🚀");
+});
+
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
 const PORT = process.env.PORT || 3001;
