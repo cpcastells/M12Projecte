@@ -3,22 +3,26 @@ import { authenticate } from "../middlewares/authenticate";
 import {
   getMyActiveGame,
   getMyLastGame,
-  seedRoom,
   startGame,
   saveGameProgress,
 } from "../controllers/game.controller";
 
 const router = Router();
 
-console.log("game.routes cargado");
-
-// Temporal, per proves
-router.get("/seed-room", seedRoom);
-
 // Iniciar partida
 router.post("/start", authenticate, startGame);
 
 // Guardar progrés
+// Nota:
+// Aquest endpoint (`/save`) s’utilitza com a persistència temporal del progrés.
+// En futures iteracions, la lògica del joc evolucionarà cap a endpoints
+// d’acció específics (validar resposta, demanar pista, abandonar/completar),
+// de manera que el backend controli completament l’estat de la partida.
+//
+// Exemples previstos (quan disposem del controller corresponent):
+// POST  /game/:id/answer  -> validar resposta del puzzle i avançar
+// POST  /game/:id/hint    -> demanar pista i aplicar penalització
+// PATCH /game/:id/status  -> abandonar o completar la partida
 router.post("/save", authenticate, saveGameProgress);
 
 // Partida activa
