@@ -1,10 +1,11 @@
 import type { GameState } from "../types/game";
+import { GAME_CONSTANTS } from "../constants/game.constants";
 
 export function defaultGameState(): GameState {
   return {
     hintsUsed: 0,
-    maxHints: 3,
-    timeRemainingSeconds: 1800,
+    maxHints: GAME_CONSTANTS.MAX_HINTS,
+    timeRemainingSeconds: GAME_CONSTANTS.INITIAL_TIME_SECONDS,
     score: 0,
     solvedPuzzleIds: [],
     collectedObjectIds: [],
