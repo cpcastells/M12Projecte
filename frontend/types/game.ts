@@ -25,6 +25,7 @@ export type Room = {
   name: string;
   description: string;
   image: string | null;
+  order: number;
   isInitial: boolean;
   objects: InteractiveObject[];
   puzzle: Puzzle | null;
