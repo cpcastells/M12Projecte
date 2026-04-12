@@ -42,3 +42,41 @@ export const request = async <T>(
 
   return data as T;
 };
+
+/**
+ * Client HTTP autenticat. Afegeix el token JWT a la capçalera Authorization.
+ * Llança ApiError(401) si no hi ha token disponible.
+ */
+export const authRequest = async <T>(
+  url: string,
+  method: HttpMethod = "GET",
+  body?: unknown,
+): Promise<T> => {
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+
+  if (!token) {
+    throw new ApiError("No s'ha trobat el token d'autenticació", 401);
+  }
+
+  const options: RequestInit = {
+    method,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  if (body !== undefined) {
+    options.body = JSON.stringify(body);
+  }
+
+  const res = await fetch(url, options);
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new ApiError(data.message ?? "Error desconegut", res.status);
+  }
+
+  return data as T;
+};
