@@ -1,80 +1,16 @@
 import type { Request, Response } from "express";
 import { prisma } from "../db/prisma";
+import type { GameState } from "../types/game";
+import { defaultGameState, isValidGameState } from "../utils/gameState";
+import { GameStatus } from "@prisma/client";
 
 /**
- * Crea la primera sala de prova a la base de dades.
- * Ruta temporal només per desenvolupament.
- */
-export async function seedRoom(req: Request, res: Response) {
-  try {
-    const existingRoom = await prisma.room.findUnique({
-      where: { code: "room1" },
-    });
-
-    if (existingRoom) {
-      return res.status(400).json({
-        message: "La sala room1 ja existeix",
-      });
-    }
-
-    const room = await prisma.room.create({
-      data: {
-        code: "room1",
-        name: "Laboratori abandonat",
-        description:
-          "Una sala fosca amb ordinadors espatllats i una porta bloquejada.",
-        isInitial: true,
-
-        objects: {
-          create: [
-            {
-              name: "Taula",
-              description: "Hi ha una nota amagada sota la taula.",
-              type: "note",
-              action: "show-note",
-            },
-            {
-              name: "Porta",
-              description: "La porta necessita un codi de 4 dígits.",
-              type: "door",
-              action: "open-door",
-            },
-            {
-              name: "Terminal",
-              description: "Un terminal antic demana una contrasenya.",
-              type: "terminal",
-              action: "validate-code",
-            },
-          ],
-        },
-
-        puzzle: {
-          create: {
-            title: "Codi de la porta",
-            statement: "Troba els números amagats a la sala.",
-            solution: "4281",
-            reward: "Porta desbloquejada",
-          },
-        },
-      },
-      include: {
-        objects: true,
-        puzzle: true,
-      },
-    });
-
-    return res.status(201).json(room);
-  } catch (error) {
-    console.error("Error creant la sala:", error);
-
-    return res.status(500).json({
-      message: "Error intern del servidor",
-    });
-  }
-}
-
-/**
- * Inicia una nova partida per a l'usuari autenticat.
+ * Inicia (o recupera) la partida de l'usuari autenticat.
+ *
+ * Model actual:
+ * - 1 usuari = 1 partida (userId @unique)
+ * - La sala inicial es determina amb Room.isInitial = true
+ * - L'estat de joc es guarda a Game.state amb el contracte GameState
  */
 export async function startGame(req: Request, res: Response) {
   try {
@@ -84,8 +20,23 @@ export async function startGame(req: Request, res: Response) {
 
     const userId = Number(req.user.id);
 
+    // 1 user = 1 game (userId @unique)-> si existeix retornem la mateixa partida
+    const existing = await prisma.game.findUnique({ where: { userId } });
+    if (existing) {
+      const game = await prisma.game.findUnique({
+        where: { userId },
+        include: { currentRoom: { include: { objects: true, puzzle: true } } },
+      });
+
+      return res.status(200).json({
+        message: "Ja tens una partida. Pots continuar-la o abandonar-la.",
+        game,
+      });
+    }
+
     const initialRoom = await prisma.room.findFirst({
       where: { isInitial: true },
+      include: { objects: true, puzzle: true },
     });
 
     if (!initialRoom) {
@@ -97,13 +48,9 @@ export async function startGame(req: Request, res: Response) {
     const game = await prisma.game.create({
       data: {
         userId,
-        status: "active",
+        status: GameStatus.active,
         currentRoomId: initialRoom.id,
-        state: {
-          inventory: [],
-          solvedPuzzles: [],
-          collectedObjects: [],
-        },
+        state: defaultGameState(),
       },
       include: {
         currentRoom: {
@@ -121,15 +68,23 @@ export async function startGame(req: Request, res: Response) {
     });
   } catch (error) {
     console.error("Error iniciant la partida:", error);
-
     return res.status(500).json({
       message: "Error intern del servidor",
     });
   }
 }
 /**
- * Guarda el progrés de la partida activa de l'usuari.
+ * Guarda el progrés de la partida.
+ *
+ * Nota:
+ * Aquest endpoint (/save) s’utilitza com a persistència temporal del progrés.
+ * La lògica definitiva del joc evolucionarà cap a endpoints d’acció (answer/hint/status),
+ * de manera que el backend controli completament l’estat.
+ *
+ * FINAL (alineat amb GameState):
+ * -Només acceptem state si és un GameState vàlid.
  */
+
 export async function saveGameProgress(req: Request, res: Response) {
   try {
     if (!req.user) {
@@ -137,14 +92,7 @@ export async function saveGameProgress(req: Request, res: Response) {
     }
 
     const userId = Number(req.user.id);
-    const {
-      gameId,
-      currentRoomId,
-      inventory,
-      solvedPuzzles,
-      collectedObjects,
-      status,
-    } = req.body;
+    const { gameId, state } = req.body;
 
     if (!gameId) {
       return res.status(400).json({
@@ -164,24 +112,19 @@ export async function saveGameProgress(req: Request, res: Response) {
         message: "Partida no trobada",
       });
     }
+    // Només guardem si l'state segueix el contracte GameState
+    if (state === undefined || !isValidGameState(state)) {
+      return res.status(400).json({
+        message: "state invàlid (format GameState requerit)",
+      });
+    }
 
     const updatedGame = await prisma.game.update({
       where: {
         id: Number(gameId),
       },
       data: {
-        currentRoomId:
-          currentRoomId !== undefined
-            ? Number(currentRoomId)
-            : existingGame.currentRoomId,
-        status: status ?? existingGame.status,
-        state: {
-          inventory: Array.isArray(inventory) ? inventory : [],
-          solvedPuzzles: Array.isArray(solvedPuzzles) ? solvedPuzzles : [],
-          collectedObjects: Array.isArray(collectedObjects)
-            ? collectedObjects
-            : [],
-        },
+        state, // ja és GameState validat
       },
       include: {
         currentRoom: {
@@ -199,7 +142,6 @@ export async function saveGameProgress(req: Request, res: Response) {
     });
   } catch (error) {
     console.error("Error guardant el progrés:", error);
-
     return res.status(500).json({
       message: "Error intern del servidor",
     });
@@ -209,7 +151,7 @@ export async function saveGameProgress(req: Request, res: Response) {
 /**
  * Retorna la partida activa de l'usuari autenticat.
  * - Requereix passar pel middleware authenticate (req.user definit).
- * - Si no hi ha partida activa, retorna 404 amb missatge clar.
+ * - Amb userId @unique: fem findUnique i comprovem status.)
  */
 export async function getMyActiveGame(req: Request, res: Response) {
   try {
@@ -219,12 +161,8 @@ export async function getMyActiveGame(req: Request, res: Response) {
 
     const userId = Number(req.user.id);
 
-    const game = await prisma.game.findFirst({
-      where: {
-        userId,
-        status: "active",
-      },
-      orderBy: { createdAt: "desc" },
+    const game = await prisma.game.findUnique({
+      where: { userId },
       include: {
         currentRoom: {
           include: {
@@ -235,7 +173,7 @@ export async function getMyActiveGame(req: Request, res: Response) {
       },
     });
 
-    if (!game) {
+    if (!game || game.status !== GameStatus.active) {
       return res.status(404).json({
         message: "No s'ha trobat cap partida activa per aquest usuari",
       });
@@ -253,7 +191,7 @@ export async function getMyActiveGame(req: Request, res: Response) {
 
 /**
  * Retorna l'última partida (sigui active o no).
- * Útil per mostrar historial / resume last.
+ * Amb userId @unique: és la mateixa partida si existeix.
  */
 export async function getMyLastGame(req: Request, res: Response) {
   try {
@@ -265,7 +203,6 @@ export async function getMyLastGame(req: Request, res: Response) {
 
     const game = await prisma.game.findFirst({
       where: { userId },
-      orderBy: { createdAt: "desc" },
       include: {
         currentRoom: {
           include: {
