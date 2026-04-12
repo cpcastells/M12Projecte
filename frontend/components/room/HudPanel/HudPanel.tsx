@@ -19,7 +19,40 @@ const HudPanel = ({ room, selectedObject }: HudPanelProps) => {
         <div className="text-cyan-200 text-[11px] mt-1">{room.name}</div>
       </div>
 
-      {/* Timer slot - Per definir en una futura PR*/}
+      {/* Timer slot — PR4 */}
+
+      {/* Sistemes de l'estació (ambientació) */}
+      <div className="border-t border-cyan-700/30 pt-2">
+        <div className="text-cyan-500 uppercase tracking-widest mb-2">
+          Inspecció
+        </div>
+        <div className="text-cyan-200 text-[11px]">
+          Panel de Control – {room.name.toUpperCase()}
+          <ul className="list-disc ml-4 mt-1">
+            <li>Pressió: 420 bar</li>
+            <li>Oxigen: 17%</li>
+            <li>Energia: 34%</li>
+          </ul>
+        </div>
+      </div>
+
+      {/* Barra de progrés */}
+      <div>
+        <div className="flex justify-between text-[9px] text-cyan-700 mb-1">
+          <span>Progrés</span>
+          <span>
+            Sala {room.order}/{String(TOTAL_ROOMS).padStart(2, "0")}
+          </span>
+        </div>
+        <div className="h-0.75 bg-cyan-900">
+          <div
+            className="h-full bg-cyan-400 transition-all"
+            style={{
+              width: `${((room.order - 1) / TOTAL_ROOMS) * 100}%`,
+            }}
+          />
+        </div>
+      </div>
 
       {/* Objecte seleccionat */}
       <ObjectPanel object={selectedObject} />
