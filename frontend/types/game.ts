@@ -8,7 +8,6 @@ export type InteractiveObject = {
   type: string;
   isInteractive: boolean;
   isVisible: boolean;
-  isCollected: boolean;
   action: string | null;
 };
 
@@ -17,7 +16,6 @@ export type Puzzle = {
   roomId: number;
   title: string;
   statement: string;
-  solution: string;
   reward: string | null;
 };
 
@@ -50,7 +48,7 @@ export type GameState = {
 
 export type Game = {
   id: number;
-  status: "active" | "completed" | "failed";
+  status: "active" | "completed" | "abandoned";
   currentRoom: Room;
   state: GameState | null;
   createdAt: string;
