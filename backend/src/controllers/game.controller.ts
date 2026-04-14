@@ -227,14 +227,155 @@ export async function getMyLastGame(req: Request, res: Response) {
     });
   }
 }
+/*Funció que penalitza resta punts , guarda estado nuevo y devuelve respuesta error
+export async function handleWrongAnswer(req : Request, res : Response) {
+
+}
+//Puzzles resueltos, save + desbloquear
+export async function handleCorrectAnswer(req : Request, res : Response) {
+*/
+
+type ActiveGameWithPuzzle = Prisma.GameGetPayload<{
+  include: {
+    currentRoom: {
+      include: {
+        puzzle: true;
+      };
+    };
+  };
+}>;
+
+async function findActiveGameWithPuzzle(gameId: number, userId: number) {
+  const game = await prisma.game.findFirst({
+    where: {
+      id: gameId,
+      userId,
+      status: GameStatus.active,
+    },
+    include: {
+      currentRoom: {
+        include: {
+          puzzle: true,
+        },
+      },
+    },
+  });
+
+  if (!game || !game.currentRoom) {
+    return { error: "Partida activa no trobada" as const };
+  }
+
+  if (!game.currentRoom.puzzle) {
+    return { error: "Aquesta sala no té puzzle" as const };
+  }
+
+  return { game };
+}
+
+async function handleWrongAnswer(gameId: number, currentState: GameState) {
+  const newState: GameState = {
+    ...currentState,
+    score: Math.max(
+      GAME_CONSTANTS.MIN_SCORE,
+      currentState.score - GAME_CONSTANTS.SCORE_WRONG_ANSWER_PENALTY,
+    ),
+  };
+
+  await prisma.game.update({
+    where: { id: gameId },
+    data: {
+      state: newState as unknown as Prisma.InputJsonValue,
+    },
+  });
+
+  return {
+    correct: false,
+    message: "La resposta no és correcta. Torna-ho a intentar.",
+    state: newState,
+  };
+}
+
+async function handleCorrectAnswer(
+  gameId: number,
+  game: ActiveGameWithPuzzle,
+  currentState: GameState,
+) {
+  const puzzle = game.currentRoom!.puzzle!;
+
+  const solved = new Set(currentState.solvedPuzzleIds.map(Number));
+  solved.add(puzzle.id);
+
+  const currentOrder = game.currentRoom!.order;
+
+  const currentUnlockedRoomIds = Array.isArray(currentState.unlockedRoomIds)
+    ? currentState.unlockedRoomIds
+    : [1];
+
+  const nextRoom = await prisma.room.findUnique({
+    where: { order: currentOrder + 1 },
+  });
+
+  const updatedUnlockedRoomIds =
+    nextRoom && !currentUnlockedRoomIds.includes(nextRoom.id)
+      ? [...currentUnlockedRoomIds, nextRoom.id]
+      : currentUnlockedRoomIds;
+
+  const newState: GameState = {
+    ...currentState,
+    solvedPuzzleIds: Array.from(solved),
+    score: currentState.score + GAME_CONSTANTS.SCORE_CORRECT_ANSWER,
+    unlockedRoomIds: updatedUnlockedRoomIds,
+  };
+
+  if (nextRoom) {
+    const advanceState: GameState = {
+      ...newState,
+      hintsUsed: 0,
+    };
+
+    const updatedGame = await prisma.game.update({
+      where: { id: gameId },
+      data: {
+        currentRoomId: nextRoom.id,
+        state: advanceState as unknown as Prisma.InputJsonValue,
+      },
+      include: {
+        currentRoom: { include: roomInclude },
+      },
+    });
+
+    return {
+      correct: true,
+      completed: false,
+      unlockedRoom: nextRoom,
+      game: updatedGame,
+      state: advanceState,
+    };
+  }
+
+  const updatedGame = await prisma.game.update({
+    where: { id: gameId },
+    data: {
+      status: GameStatus.completed,
+      currentRoomId: null,
+      state: newState as unknown as Prisma.InputJsonValue,
+    },
+  });
+
+  return {
+    correct: true,
+    completed: true,
+    unlockedRoom: null,
+    game: updatedGame,
+    state: newState,
+  };
+}
 
 /**
  * POST /game/:id/answer
  * Task #108: valida la resposta del puzzle, marca com resolt i aplica canvis a la partida.
- *
- * - Si correcta: afegeix puzzleId a solvedPuzzleIds, suma score i avança a la següent sala (order + 1).
- * - Si incorrecta: retorna feedback genèric, penalitza score i manté la sala.
  */
+
 export async function submitPuzzleAnswer(req: Request, res: Response) {
   try {
     if (!req.user) {
@@ -249,33 +390,17 @@ export async function submitPuzzleAnswer(req: Request, res: Response) {
       return res.status(400).json({ message: "Cal enviar una resposta" });
     }
 
-    // Carreguem partida activa + sala actual + puzzle
-    const game = await prisma.game.findFirst({
-      where: {
-        id: gameId,
-        userId,
-        status: GameStatus.active,
-      },
-      include: {
-        currentRoom: {
-          include: {
-            puzzle: true,
-          },
-        },
-      },
-    });
+    const result = await findActiveGameWithPuzzle(gameId, userId);
 
-    if (!game || !game.currentRoom) {
-      return res.status(404).json({ message: "Partida activa no trobada" });
+    if ("error" in result) {
+      const status = result.error === "Aquesta sala no té puzzle" ? 400 : 404;
+
+      return res.status(status).json({ message: result.error });
     }
 
-    const puzzle = game.currentRoom.puzzle;
-    if (!puzzle) {
-      return res.status(400).json({ message: "Aquesta sala no té puzzle" });
-    }
+    const { game } = result;
+    const puzzle = game.currentRoom!.puzzle!;
 
-    // Estat actual del joc (GameState)
-    // Si per algun motiu està mal format, fem fallback a default
     const currentState: GameState = isValidGameState(game.state)
       ? (game.state as GameState)
       : defaultGameState();
@@ -283,84 +408,13 @@ export async function submitPuzzleAnswer(req: Request, res: Response) {
     const isCorrect =
       answer.trim().toLowerCase() === puzzle.solution.trim().toLowerCase();
 
-    // Task #107 aplicada dins #108
     if (!isCorrect) {
-      const newState: GameState = {
-        ...currentState,
-        score: Math.max(
-          GAME_CONSTANTS.MIN_SCORE,
-          currentState.score - GAME_CONSTANTS.SCORE_WRONG_ANSWER_PENALTY,
-        ),
-      };
-
-      await prisma.game.update({
-        where: { id: gameId },
-        data: {
-          state: newState as unknown as Prisma.InputJsonValue,
-        },
-      });
-
-      return res.status(200).json({
-        correct: false,
-        message: "La resposta no és correcta. Torna-ho a intentar.",
-        state: newState,
-      });
+      const response = await handleWrongAnswer(gameId, currentState);
+      return res.status(200).json(response);
     }
 
-    // Task #109 aplicada dins #108
-    const solved = new Set(currentState.solvedPuzzleIds.map(Number));
-    solved.add(puzzle.id);
-
-    const newState: GameState = {
-      ...currentState,
-      solvedPuzzleIds: Array.from(solved),
-      score: currentState.score + GAME_CONSTANTS.SCORE_CORRECT_ANSWER,
-    };
-
-    // Progressió lineal per Room.order
-    const currentOrder = game.currentRoom.order;
-    const nextRoom = await prisma.room.findUnique({
-      where: { order: currentOrder + 1 },
-    });
-
-    // Hi ha sala següent-> avançar (reset hintsUsed per la nova sala)
-    if (nextRoom) {
-      const advanceState: GameState = { ...newState, hintsUsed: 0 };
-      const updatedGame = await prisma.game.update({
-        where: { id: gameId },
-        data: {
-          currentRoomId: nextRoom.id,
-          state: advanceState as unknown as Prisma.InputJsonValue,
-        },
-        include: {
-          currentRoom: { include: roomInclude },
-        },
-      });
-
-      return res.status(200).json({
-        correct: true,
-        completed: false,
-        game: updatedGame,
-        state: advanceState,
-      });
-    }
-
-    // No hi ha següent sala-> partida completada
-    const updatedGame = await prisma.game.update({
-      where: { id: gameId },
-      data: {
-        status: GameStatus.completed,
-        currentRoomId: null,
-        state: newState as unknown as Prisma.InputJsonValue,
-      },
-    });
-
-    return res.status(200).json({
-      correct: true,
-      completed: true,
-      game: updatedGame,
-      state: newState,
-    });
+    const response = await handleCorrectAnswer(gameId, game, currentState);
+    return res.status(200).json(response);
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Error intern del servidor" });
