@@ -10,6 +10,9 @@ export function defaultGameState(): GameState {
     solvedPuzzleIds: [],
     collectedObjectIds: [],
     usedObjectIds: [],
+
+    // La sala inicial (room1) queda desbloquejada des del principi
+    unlockedRoomIds: [1],
   };
 }
 
@@ -24,6 +27,8 @@ export function isValidGameState(x: unknown): x is GameState {
     typeof s.score === "number" &&
     Array.isArray(s.solvedPuzzleIds) &&
     Array.isArray(s.collectedObjectIds) &&
-    Array.isArray(s.usedObjectIds)
+    Array.isArray(s.usedObjectIds) &&
+    //array sala desloqueada
+    Array.isArray(s.unlockedRoomIds)
   );
 }
