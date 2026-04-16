@@ -10,4 +10,6 @@ export type GameState = {
   solvedPuzzleIds: number[];
   collectedObjectIds: number[];
   usedObjectIds: number[];
+  // Sales que el jugador ja ha desbloquejat
+  unlockedRoomIds: number[];
 };
