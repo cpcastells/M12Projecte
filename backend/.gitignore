@@ -10,3 +10,7 @@ dist/
 
 # prisma (si generas cliente manualmente)
 src/generated/prisma
+
+# carpetes temporals / tooling
+git/
+npx/
