@@ -7,6 +7,7 @@ import {
   saveGameProgress,
   submitPuzzleAnswer,
   requestHint,
+  registerObjectInteraction,
 } from "../controllers/game.controller";
 
 const router = Router();
@@ -32,6 +33,9 @@ router.post("/:id/answer", authenticate, submitPuzzleAnswer);
 
 // Demanar pista per al puzzle actual
 router.post("/:id/hint", authenticate, requestHint);
+
+// Registrar interacció amb un objecte
+router.post("/:id/interactions", authenticate, registerObjectInteraction);
 
 // Partida activa
 router.get("/me/active", authenticate, getMyActiveGame);

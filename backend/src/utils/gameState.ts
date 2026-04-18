@@ -1,4 +1,4 @@
-import type { GameState } from "../types/game";
+import type { GameState, ObjectInteraction } from "../types/game";
 import { GAME_CONSTANTS } from "../constants/game.constants";
 
 /**
@@ -40,6 +40,9 @@ export function defaultGameState(): GameState {
     // Sales que el jugador ja ha desbloquejat.
     // La sala inicial (room1) queda desbloquejada des del principi
     unlockedRoomIds: [1],
+
+    // Registre d'interaccions dels objectes durant la partida
+    objectInteractions: {},
   };
 }
 
@@ -81,4 +84,30 @@ export function isValidGameState(x: unknown): x is GameState {
  */
 export function getStateOrDefault(x: unknown): GameState {
   return isValidGameState(x) ? (x as GameState) : defaultGameState();
+}
+/**
+ * Registra una interacció sobre un objecte dins de l'estat de partida.
+ *
+ * Exemple:
+ * - consulted -> l'usuari ha inspeccionat l'objecte
+ * - activated -> l'usuari ha activat l'objecte
+ * - used -> l'usuari ha utilitzat l'objecte
+ *
+ * Aquesta funció no parla amb BD; només transforma l'estat.
+ */
+export function registerObjectInteraction(
+  state: GameState,
+  objectId: number,
+  interaction: keyof ObjectInteraction,
+): GameState {
+  return {
+    ...state,
+    objectInteractions: {
+      ...state.objectInteractions,
+      [objectId]: {
+        ...state.objectInteractions[objectId],
+        [interaction]: true,
+      },
+    },
+  };
 }

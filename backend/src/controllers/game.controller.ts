@@ -5,6 +5,7 @@ import { startGameUseCase } from "../usecases/startGame.usecase";
 import { saveGameProgressUseCase } from "../usecases/saveGameProgress.usecase";
 import { getMyActiveGameUseCase } from "../usecases/getMyActiveGame.usecase";
 import { getMyLastGameUseCase } from "../usecases/getMyLastGame.usecase";
+import { registerObjectInteractionUseCase } from "../usecases/registerObjectInteraction.usecase";
 
 /**
  * Inicia (o recupera) la partida de l'usuari autenticat.
@@ -122,6 +123,33 @@ export async function requestHint(req: Request, res: Response) {
   const gameId = Number(req.params.id);
 
   const result = await requestHintUseCase(userId, gameId);
+
+  return res.status(result.status).json(result.body);
+}
+/**
+ * POST /game/:id/interactions
+ *
+ * Endpoint per registrar una interacció sobre un objecte de la sala actual.
+ * Exemples:
+ * - consulted: l'usuari inspecciona un objecte
+ * - activated: l'usuari activa un mecanisme
+ * - used: l'usuari utilitza un objecte
+ */
+export async function registerObjectInteraction(req: Request, res: Response) {
+  if (!req.user) {
+    return res.status(401).json({ message: "Usuari no autenticat" });
+  }
+
+  const userId = Number(req.user.id);
+  const gameId = Number(req.params.id);
+  const { objectId, interaction } = req.body;
+
+  const result = await registerObjectInteractionUseCase(
+    userId,
+    gameId,
+    Number(objectId),
+    interaction,
+  );
 
   return res.status(result.status).json(result.body);
 }

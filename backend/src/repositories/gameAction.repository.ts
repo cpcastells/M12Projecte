@@ -9,7 +9,7 @@ import { prisma } from "../db/prisma";
  * Repository d'accions del joc (Game Actions).
  *
  * Responsabilitat:
- * - Donar suport als casos d'ús d'acció del joc (star, me/*, answer, hint, progressió).
+ * - Donar suport als casos d'ús d'acció del joc (start, me/*, answer, hint, progressió).
  *
  * Aquest repository:
  * - Conté queries específiques i combinades.
@@ -40,6 +40,20 @@ export const gameActionRepository = {
     return prisma.game.findFirst({
       where: { userId, status: GameStatus.active },
       include: { currentRoom: { include: roomIncludeForResponse } },
+    });
+  },
+
+  /**
+   * Retorna una partida activa concreta per id + userId.
+   * Utilitzada per registrar interaccions o altres accions puntuals.
+   */
+  findActiveByIdAndUser(gameId: number, userId: number) {
+    return prisma.game.findFirst({
+      where: {
+        id: gameId,
+        userId,
+        status: GameStatus.active,
+      },
     });
   },
 
@@ -115,7 +129,7 @@ export const gameActionRepository = {
     return prisma.game.update({
       where: { id: gameId },
       data: { currentRoomId: nextRoomId, state },
-      include: { currentRoom: { include: roomIncludeForResponse } }, // sense solution
+      include: { currentRoom: { include: roomIncludeForResponse } },
     });
   },
 
@@ -170,8 +184,22 @@ export const gameActionRepository = {
   },
 
   /**
+   * Actualitza l'estat del joc i retorna la partida amb la sala actual (SAFE).
+   * Utilitzada per registrar interaccions i retornar la partida actualitzada.
+   */
+  updateStateWithRoom(gameId: number, state: Prisma.InputJsonValue) {
+    return prisma.game.update({
+      where: { id: gameId },
+      data: { state: state as unknown as Prisma.InputJsonValue },
+      include: {
+        currentRoom: { include: roomIncludeForResponse },
+      },
+    });
+  },
+
+  /**
    * Guarda l'estat del joc validant que la partida pertany a l'usuari.
-   * Retorna la partida amb informació SAFE o null si no existeix/ o no pertany.
+   * Retorna la partida amb informació SAFE o null si no existeix o no pertany.
    */
   async saveGameProgress(
     userId: number,
