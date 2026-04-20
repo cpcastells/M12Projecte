@@ -37,14 +37,28 @@ const ROOMS: SeedRoom[] = [
     order: 1,
     isInitial: true,
     puzzle: {
-      title: "Activació del sistema central",
-      statement: "Introdueix el codi de 4 dígits per desbloquejar el sistema.",
+      title: "Enigma Principal: Activació del Sistema Central",
+      statement:
+        "Com a enginyer de l'estació submarina, has de resoldre l'enigma per activar el sistema central. Explora la sala, interactua amb els objectes per deduir pistes claus i troba el codi de 4 dígits correcte basat en la profunditat operativa.",
       solution: "4200",
       reward: "EXTRA_SCORE",
       hints: [
-        { order: 1, text: "El codi té 4 dígits." },
-        { order: 2, text: "El sistema controla una estació submarina." },
-        { order: 3, text: "La profunditat és un valor clau." },
+        {
+          order: 1,
+          text: "Relaciona la informació dels diferents objectes de la sala.",
+        },
+        {
+          order: 2,
+          text: "La pressió pot donar-te una pista sobre la profunditat.",
+        },
+        {
+          order: 3,
+          text: "Hi ha una relació proporcional entre pressió i profunditat.",
+        },
+        {
+          order: 4,
+          text: "Multiplica la pressió per 10 per obtenir el valor final.",
+        },
       ],
     },
     objects: [
@@ -59,7 +73,7 @@ const ROOMS: SeedRoom[] = [
       {
         name: "Panell de Control",
         description:
-          "Mostra paràmetres del sistema: pressió, oxigen i energia.",
+          "Mostra dades del sistema: pressió estabilitzada a 420 atmosferes.",
         type: "panel",
         isInteractive: true,
         isVisible: true,
@@ -68,7 +82,7 @@ const ROOMS: SeedRoom[] = [
       {
         name: "Llibreta de Bitàcora",
         description:
-          "Registre tècnic de l’estació. Entre les anotacions destaca: Profunditat operativa: 4200 metres.",
+          "Registre tècnic: la profunditat operativa segura es troba entre 4000 i 4500 metres.",
         type: "logbook",
         isInteractive: true,
         isVisible: true,
