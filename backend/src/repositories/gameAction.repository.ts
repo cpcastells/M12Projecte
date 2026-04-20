@@ -190,7 +190,7 @@ export const gameActionRepository = {
   updateStateWithRoom(gameId: number, state: Prisma.InputJsonValue) {
     return prisma.game.update({
       where: { id: gameId },
-      data: { state: state as unknown as Prisma.InputJsonValue },
+      data: { state },
       include: {
         currentRoom: { include: roomIncludeForResponse },
       },

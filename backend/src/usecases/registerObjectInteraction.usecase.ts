@@ -86,7 +86,7 @@ export async function registerObjectInteractionUseCase(
       body: {
         message: "Interacció registrada correctament",
         game: updatedGame,
-        state: newState,
+        state: updatedGame.state,
       },
     };
   } catch (error) {
