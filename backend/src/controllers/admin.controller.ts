@@ -86,3 +86,40 @@ export async function adminDeleteUser(req: Request, res: Response) {
     return res.status(500).json({ message: "Error eliminant usuari" });
   }
 }
+export async function adminListRooms(req: Request, res: Response) {
+  try {
+    const rooms = await prisma.room.findMany({
+      orderBy: { id: "asc" },
+    });
+
+    return res.status(200).json({ rooms });
+  } catch (e) {
+    return res.status(500).json({ message: "Error llistant sales" });
+  }
+}
+export async function adminUpdateRoom(req: Request, res: Response) {
+  try {
+    const id = Number(req.params.id);
+    const data = req.body;
+
+    const room = await prisma.room.update({
+      where: { id },
+      data,
+    });
+
+    return res.status(200).json({ room });
+  } catch {
+    return res.status(500).json({ message: "Error actualitzant sala" });
+  }
+}
+export async function adminListPuzzles(req: Request, res: Response) {
+  try {
+    const puzzles = await prisma.puzzle.findMany({
+      orderBy: { id: "asc" },
+    });
+
+    return res.status(200).json({ puzzles });
+  } catch {
+    return res.status(500).json({ message: "Error llistant enigmes" });
+  }
+}

@@ -29,4 +29,20 @@ export const ENDPOINTS = {
     /** POST — Sol·licita una pista */
     hint: (gameId: number) => `${BASE_URL}/game/${gameId}/hint`,
   },
+
+  /** Endpoints d'administració  */
+  admin: {
+    /** GET — Llista tots els usuaris */
+    users: `${BASE_URL}/admin/users`,
+    /** PATCH — Canvia el rol d'un usuari */
+    userRole: (id: number) => `${BASE_URL}/admin/users/${id}/role`,
+    /** DELETE — Elimina un usuari */
+    deleteUser: (id: number) => `${BASE_URL}/admin/users/${id}`,
+    /** GET — Llista totes les sales */
+    rooms: `${BASE_URL}/admin/rooms`,
+    /** PATCH — Actualitza nom/descripció d'una sala */
+    updateRoom: (id: number) => `${BASE_URL}/admin/rooms/${id}`,
+    /** GET — Llista tots els enigmes */
+    puzzles: `${BASE_URL}/admin/puzzles`,
+  },
 } as const;
