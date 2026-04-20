@@ -66,11 +66,16 @@ const HintsPanel = ({ gameId, hintsUsed, maxHints }: HintsPanelProps) => {
       </div>
 
       {revealedHints.length > 0 && (
-        <ul className="list-disc ml-4 text-cyan-200 text-[11px] mb-2">
+        <div className="mb-2">
           {revealedHints.map((hint, i) => (
-            <li key={i}>{hint}</li>
+            <div
+              key={i}
+              className="bg-black text-green-400 font-mono text-xs p-2 mb-2 rounded border border-green-500/30"
+            >
+              [ABYSS AI LOG] {hint}
+            </div>
           ))}
-        </ul>
+        </div>
       )}
 
       {infoMessage && (
