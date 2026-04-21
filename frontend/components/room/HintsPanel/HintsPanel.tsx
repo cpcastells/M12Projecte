@@ -10,9 +10,17 @@ type HintsPanelProps = {
   gameId: number;
 };
 
+type Message =
+  | { kind: "limit"; text: string }
+  | { kind: "error"; text: string }
+  | null;
+
+const HINT_LIMIT_TEXT =
+  "Has arribat al límit de pistes. No es poden demanar més pistes per aquesta sala.";
+
 const HintsPanel = ({ gameId }: HintsPanelProps) => {
   const [revealedHints, setRevealedHints] = useState<string[]>([]);
-  const [infoMessage, setInfoMessage] = useState<string>("");
+  const [message, setMessage] = useState<Message>(null);
   const { mutate, isPending } = useRequestHint();
   const { data } = useActiveGame();
 
@@ -20,17 +28,15 @@ const HintsPanel = ({ gameId }: HintsPanelProps) => {
   const maxHints = GAME_CONSTANTS.MAX_HINTS;
   const hintsRemaining = maxHints - hintsUsed;
   const canRequestHint = hintsRemaining > 0;
-  const hintLimitMessage =
-    "Has arribat al límit de pistes. No es poden demanar més pistes per aquesta sala.";
 
   const handleRequestHint = () => {
     if (!canRequestHint) {
-      setInfoMessage(hintLimitMessage);
+      setMessage({ kind: "limit", text: HINT_LIMIT_TEXT });
       return;
     }
     if (isPending) return;
 
-    setInfoMessage("");
+    setMessage(null);
 
     mutate(
       { gameId },
@@ -38,12 +44,17 @@ const HintsPanel = ({ gameId }: HintsPanelProps) => {
         onSuccess: (response) => {
           setRevealedHints((prev) => [...prev, response.hint]);
           if (response.hintsRemaining <= 0) {
-            setInfoMessage(hintLimitMessage);
+            setMessage({ kind: "limit", text: HINT_LIMIT_TEXT });
             AudioManager.play("alarm");
           }
         },
         onError: (error) => {
-          setInfoMessage(error.message ?? "No s'ha pogut demanar la pista.");
+          setMessage({
+            kind: "error",
+            text:
+              error.message ??
+              "No s'ha pogut demanar la pista. Torna-ho a intentar.",
+          });
         },
       },
     );
@@ -71,13 +82,23 @@ const HintsPanel = ({ gameId }: HintsPanelProps) => {
         </div>
       )}
 
-      {infoMessage && (
+      {message?.kind === "limit" && (
         <div
           role="status"
           aria-live="polite"
           className="mb-2 rounded border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-[10px] text-amber-100"
         >
-          {infoMessage}
+          {message.text}
+        </div>
+      )}
+
+      {message?.kind === "error" && (
+        <div
+          role="alert"
+          aria-live="assertive"
+          className="mb-2 rounded border border-red-500/50 bg-red-500/10 px-3 py-2 text-[10px] text-red-200"
+        >
+          {message.text}
         </div>
       )}
 
@@ -89,7 +110,7 @@ const HintsPanel = ({ gameId }: HintsPanelProps) => {
         {isPending
           ? "CARREGANT..."
           : canRequestHint
-            ? `DEMANAR PISTA (-100 pts)`
+            ? `DEMANAR PISTA (-${GAME_CONSTANTS.SCORE_HINT_PENALTY} pts)`
             : "SENSE PISTES"}
       </button>
     </div>

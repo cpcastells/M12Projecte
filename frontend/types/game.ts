@@ -84,7 +84,10 @@ export type SolveEnigmaResponse = {
   correct: boolean;
   message: string;
   nextRoom?: Room;
-  game: Game;
+  // El backend només inclou `game` quan la resposta és correcta (retorna el
+  // game avançat). Quan és incorrecta, retorna només l'`state` actualitzat.
+  game?: Game;
+  state?: GameState;
 };
 
 export type UseHintRequest = {

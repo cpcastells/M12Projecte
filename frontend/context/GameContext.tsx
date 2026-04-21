@@ -19,6 +19,8 @@ type GameContextValue = {
   saveTimer: () => Promise<void>;
   isSaving: boolean;
   lastSavedAt: Date | null;
+  /** Present si l'últim intent de save ha fallat; null si l'últim ha anat bé. */
+  saveError: string | null;
   gameId: number;
 };
 
@@ -49,6 +51,7 @@ const GameProvider = ({
   );
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const latestTimeRef = useRef(timeRemainingSeconds);
 
   useEffect(() => {
@@ -64,8 +67,12 @@ const GameProvider = ({
     try {
       await saveGame(gameId, { timeRemainingSeconds: latestTimeRef.current });
       setLastSavedAt(new Date());
+      setSaveError(null);
     } catch (err) {
       console.error("Error guardant el timer:", err);
+      const message =
+        err instanceof Error ? err.message : "No s'ha pogut guardar el progrés";
+      setSaveError(message);
     } finally {
       setIsSaving(false);
     }
@@ -86,6 +93,7 @@ const GameProvider = ({
         saveTimer,
         isSaving,
         lastSavedAt,
+        saveError,
         gameId,
       }}
     >
