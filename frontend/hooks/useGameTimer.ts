@@ -2,41 +2,36 @@ import { useEffect, useRef } from "react";
 import { useGameContext } from "@/context/GameContext";
 
 /**
- * Hook que gestiona el temporitzador del joc en temps real.
- *
- * Decrementa `timeRemainingSeconds` del GameContext cada segon.
- * S'atura quan arriba a 0 (isExpired).
+ * Decrementa el timer 1s cada segon client-side. S'atura a 0. El valor es
+ * persisteix periòdicament via auto-save del GameProvider.
  */
 const useGameTimer = () => {
-  const { gameState, updateState } = useGameContext();
+  const { timeRemainingSeconds, setTimeRemaining } = useGameContext();
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeRef = useRef(timeRemainingSeconds);
 
-  // Llegim el temps restant del GameContext (font única de veritat)
-  const timeRemaining = gameState.timeRemainingSeconds;
-  const isExpired = timeRemaining <= 0;
-
-  // Interval que decrementa 1 segon. S'atura automàticament quan el temps s'esgota.
-  // Es recrea cada segon perquè timeRemainingSeconds canvia (dependència del useEffect).
   useEffect(() => {
-    if (isExpired) return;
+    timeRef.current = timeRemainingSeconds;
+  }, [timeRemainingSeconds]);
+
+  useEffect(() => {
+    if (timeRef.current <= 0) return;
 
     intervalRef.current = setInterval(() => {
-      updateState({
-        timeRemainingSeconds: Math.max(0, gameState.timeRemainingSeconds - 1),
-      });
+      setTimeRemaining(timeRef.current - 1);
     }, 1000);
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isExpired, gameState.timeRemainingSeconds, updateState]);
+  }, [setTimeRemaining]);
 
-  // Formateja el temps restant com MM:SS
-  const minutes = Math.floor(timeRemaining / 60);
-  const seconds = timeRemaining % 60;
+  const isExpired = timeRemainingSeconds <= 0;
+  const minutes = Math.floor(timeRemainingSeconds / 60);
+  const seconds = timeRemainingSeconds % 60;
   const formattedTime = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
-  return { timeRemaining, formattedTime, isExpired };
+  return { timeRemaining: timeRemainingSeconds, formattedTime, isExpired };
 };
 
 export default useGameTimer;

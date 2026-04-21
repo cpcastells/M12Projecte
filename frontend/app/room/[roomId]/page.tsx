@@ -27,7 +27,10 @@ export default function RoomPage() {
   if (!room || !gameId || !gameState) return null;
 
   return (
-    <GameProvider initialState={gameState} gameId={gameId}>
+    <GameProvider
+      gameId={gameId}
+      initialTimeRemainingSeconds={gameState.timeRemainingSeconds}
+    >
       <main className="min-h-screen flex flex-col bg-[#030d14] text-cyan-400">
         <Navbar />
 
@@ -42,11 +45,9 @@ export default function RoomPage() {
             room={room}
             selectedObject={selectedObject}
             gameId={gameId}
-            gameState={gameState}
           />
         </div>
 
-        {/* Indicador de guardat (cantonada inferior esquerra) */}
         <div className="fixed bottom-4 left-4">
           <SaveIndicator />
         </div>

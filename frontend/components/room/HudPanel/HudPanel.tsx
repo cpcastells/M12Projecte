@@ -1,4 +1,4 @@
-import type { Room, InteractiveObject, GameState } from "@/types/game";
+import type { Room, InteractiveObject } from "@/types/game";
 import ObjectPanel from "@/components/room/ObjectPanel/ObjectPanel";
 import PuzzlePanel from "@/components/room/PuzzlePanel/PuzzlePanel";
 import HintsPanel from "@/components/room/HintsPanel/HintsPanel";
@@ -8,17 +8,11 @@ type HudPanelProps = {
   room: Room;
   selectedObject: InteractiveObject | null;
   gameId: number;
-  gameState: GameState;
 };
 
 const TOTAL_ROOMS = 3;
 
-const HudPanel = ({
-  room,
-  selectedObject,
-  gameId,
-  gameState,
-}: HudPanelProps) => {
+const HudPanel = ({ room, selectedObject, gameId }: HudPanelProps) => {
   return (
     <aside className="w-80 bg-[#040e15] border-l border-cyan-800/40 flex flex-col p-4 space-y-4 text-xs font-mono">
       {/* Sala */}
@@ -72,11 +66,7 @@ const HudPanel = ({
       {room.puzzle && <PuzzlePanel puzzle={room.puzzle} gameId={gameId} />}
 
       {/* Pistes */}
-      <HintsPanel
-        gameId={gameId}
-        hintsUsed={gameState.hintsUsed}
-        maxHints={gameState.maxHints}
-      />
+      <HintsPanel gameId={gameId} />
     </aside>
   );
 };

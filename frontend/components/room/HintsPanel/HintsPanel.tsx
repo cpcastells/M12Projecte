@@ -2,23 +2,23 @@
 
 import { useState } from "react";
 import useRequestHint from "@/hooks/useRequestHint";
-import { useGameContext } from "@/context/GameContext";
+import useActiveGame from "@/hooks/useActiveGame";
+import { GAME_CONSTANTS } from "@/constants/game";
 import { AudioManager } from "@/utils/AudioManager";
 
 type HintsPanelProps = {
   gameId: number;
-  hintsUsed: number;
-  maxHints: number;
 };
 
-const HintsPanel = ({ gameId, hintsUsed, maxHints }: HintsPanelProps) => {
+const HintsPanel = ({ gameId }: HintsPanelProps) => {
   const [revealedHints, setRevealedHints] = useState<string[]>([]);
-  const [currentHintsUsed, setCurrentHintsUsed] = useState(hintsUsed);
   const [infoMessage, setInfoMessage] = useState<string>("");
   const { mutate, isPending } = useRequestHint();
-  const { save } = useGameContext();
+  const { data } = useActiveGame();
 
-  const hintsRemaining = maxHints - currentHintsUsed;
+  const hintsUsed = data?.game.state?.hintsUsed ?? 0;
+  const maxHints = GAME_CONSTANTS.MAX_HINTS;
+  const hintsRemaining = maxHints - hintsUsed;
   const canRequestHint = hintsRemaining > 0;
   const hintLimitMessage =
     "Has arribat al límit de pistes. No es poden demanar més pistes per aquesta sala.";
@@ -28,7 +28,6 @@ const HintsPanel = ({ gameId, hintsUsed, maxHints }: HintsPanelProps) => {
       setInfoMessage(hintLimitMessage);
       return;
     }
-
     if (isPending) return;
 
     setInfoMessage("");
@@ -36,22 +35,15 @@ const HintsPanel = ({ gameId, hintsUsed, maxHints }: HintsPanelProps) => {
     mutate(
       { gameId },
       {
-        onSuccess: (data) => {
-          setRevealedHints((prev) => [...prev, data.hint]);
-          setCurrentHintsUsed(data.hintsUsed);
-
-          if (data.hintsRemaining <= 0) {
+        onSuccess: (response) => {
+          setRevealedHints((prev) => [...prev, response.hint]);
+          if (response.hintsRemaining <= 0) {
             setInfoMessage(hintLimitMessage);
-
-            //Sonido d'alerta implementat solament per quan s'arriba al límit de pistes.
             AudioManager.play("alarm");
           }
         },
         onError: (error) => {
           setInfoMessage(error.message ?? "No s'ha pogut demanar la pista.");
-        },
-        onSettled: () => {
-          save();
         },
       },
     );
@@ -62,7 +54,7 @@ const HintsPanel = ({ gameId, hintsUsed, maxHints }: HintsPanelProps) => {
       <div className="flex justify-between items-center mb-2">
         <div className="text-cyan-500 uppercase tracking-widest">Pistes</div>
         <div className="text-cyan-700 text-[10px]">
-          {currentHintsUsed}/{maxHints}
+          {hintsUsed}/{maxHints}
         </div>
       </div>
 

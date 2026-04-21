@@ -21,13 +21,17 @@ export function getLastGame(): Promise<GameResponse> {
   return authRequest<GameResponse>(ENDPOINTS.game.lastGame);
 }
 
+/**
+ * Envia un patch parcial del GameState. Només els camps permesos pel backend
+ * (actualment timeRemainingSeconds) són aplicats; la resta són ignorats.
+ */
 export function saveGame(
   gameId: number,
-  state: GameState,
+  patch: Pick<GameState, "timeRemainingSeconds">,
 ): Promise<UpdateGameStateResponse> {
   return authRequest<UpdateGameStateResponse>(ENDPOINTS.game.save, "POST", {
     gameId,
-    state,
+    state: patch,
   });
 }
 

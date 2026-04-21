@@ -14,34 +14,14 @@ import { GAME_CONSTANTS } from "../constants/game.constants";
  */
 export function defaultGameState(): GameState {
   return {
-    // Nombre de pistes utilitzades a la sala actual
     hintsUsed: 0,
-
-    // Límit de pistes per sala.
-    // Actualment deriva d'una constant global, però es manté a l'estat
-    // per permetre futures variacions (dificultat, modes de joc, etc.)
-    maxHints: GAME_CONSTANTS.MAX_HINTS,
-
-    // Temps disponible per a la partida (en segons)
     timeRemainingSeconds: GAME_CONSTANTS.INITIAL_TIME_SECONDS,
-
-    // Puntuació inicial del jugador
     score: 0,
-
-    // Identificadors dels puzzles ja resolts
     solvedPuzzleIds: [],
-
-    // Objectes recollits pel jugador
     collectedObjectIds: [],
-
-    // Objectes que ja han estat utilitzats
     usedObjectIds: [],
-
-    // Sales que el jugador ja ha desbloquejat.
     // La sala inicial (room1) queda desbloquejada des del principi
     unlockedRoomIds: [1],
-
-    // Registre d'interaccions dels objectes durant la partida
     objectInteractions: {},
   };
 }
@@ -62,13 +42,11 @@ export function isValidGameState(x: unknown): x is GameState {
     s &&
     typeof s === "object" &&
     typeof s.hintsUsed === "number" &&
-    typeof s.maxHints === "number" &&
     typeof s.timeRemainingSeconds === "number" &&
     typeof s.score === "number" &&
     Array.isArray(s.solvedPuzzleIds) &&
     Array.isArray(s.collectedObjectIds) &&
     Array.isArray(s.usedObjectIds) &&
-    //array sala desloqueada
     Array.isArray(s.unlockedRoomIds)
   );
 }

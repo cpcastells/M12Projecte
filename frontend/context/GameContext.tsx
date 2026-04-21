@@ -2,79 +2,92 @@
 
 import {
   createContext,
-  useContext,
-  useState,
   useCallback,
+  useContext,
   useEffect,
   useRef,
+  useState,
 } from "react";
-import type { GameState } from "@/types/game";
 import { saveGame } from "@/services/game/gameService";
 
 type GameContextValue = {
-  gameState: GameState;
-  gameId: number;
-  updateState: (partial: Partial<GameState>) => void;
-  save: () => void;
+  /** Segons restants (decrementat client-side cada segon). */
+  timeRemainingSeconds: number;
+  /** Decrementa o força el temps. L'única actualització client-side permesa. */
+  setTimeRemaining: (next: number) => void;
+  /** Persisteix el timer al backend. Els altres camps del GameState es mantenen al backend. */
+  saveTimer: () => Promise<void>;
   isSaving: boolean;
   lastSavedAt: Date | null;
+  gameId: number;
 };
 
 const GameContext = createContext<GameContextValue | null>(null);
 
 type GameProviderProps = {
   children: React.ReactNode;
-  initialState: GameState;
   gameId: number;
+  initialTimeRemainingSeconds: number;
 };
 
 /**
- * Proveeix l'estat mutable del joc a tots els components fills.
+ * Manté només el timer client-side. Els camps de negoci (hintsUsed, score,
+ * solvedPuzzleIds, ...) són canònics al backend i s'obtenen via useActiveGame
+ * + cache de React Query.
  *
- * Responsabilitats:
- * - Font única de veritat per al GameState (timer, score, hints, etc.)
- * - Auto-save periòdic cada 60 segons
- * - Funció save() per triggers explícits (resposta, pista, etc.)
+ * Aquest disseny evita el bug de sincronització anterior, en què un save
+ * client-driven sobreescrivia camps que el backend acabava d'actualitzar.
+ * Ara el save només pot tocar el timer (restringit també al backend).
  */
 const GameProvider = ({
   children,
-  initialState,
   gameId,
+  initialTimeRemainingSeconds,
 }: GameProviderProps) => {
-  const [gameState, setGameState] = useState<GameState>(initialState);
+  const [timeRemainingSeconds, setTimeRemainingSeconds] = useState(
+    initialTimeRemainingSeconds,
+  );
   const [isSaving, setIsSaving] = useState(false);
   const [lastSavedAt, setLastSavedAt] = useState<Date | null>(null);
-  const stateRef = useRef(gameState);
+  const latestTimeRef = useRef(timeRemainingSeconds);
 
   useEffect(() => {
-    stateRef.current = gameState;
-  }, [gameState]);
+    latestTimeRef.current = timeRemainingSeconds;
+  }, [timeRemainingSeconds]);
 
-  const updateState = useCallback((partial: Partial<GameState>) => {
-    setGameState((prev) => ({ ...prev, ...partial }));
+  const setTimeRemaining = useCallback((next: number) => {
+    setTimeRemainingSeconds(Math.max(0, Math.floor(next)));
   }, []);
 
-  const save = useCallback(async () => {
+  const saveTimer = useCallback(async () => {
     setIsSaving(true);
     try {
-      await saveGame(gameId, stateRef.current);
+      await saveGame(gameId, { timeRemainingSeconds: latestTimeRef.current });
       setLastSavedAt(new Date());
     } catch (err) {
-      console.error("Error guardant progrés:", err);
+      console.error("Error guardant el timer:", err);
     } finally {
       setIsSaving(false);
     }
   }, [gameId]);
 
-  // Auto-save cada 60 segons
+  // Auto-save periòdic del timer. 60s és prou per recuperar pràcticament
+  // tot el temps en cas de refresh/crash, sense martellejar el backend.
   useEffect(() => {
-    const interval = setInterval(save, 60_000);
+    const interval = setInterval(saveTimer, 60_000);
     return () => clearInterval(interval);
-  }, [save]);
+  }, [saveTimer]);
 
   return (
     <GameContext.Provider
-      value={{ gameState, gameId, updateState, save, isSaving, lastSavedAt }}
+      value={{
+        timeRemainingSeconds,
+        setTimeRemaining,
+        saveTimer,
+        isSaving,
+        lastSavedAt,
+        gameId,
+      }}
     >
       {children}
     </GameContext.Provider>

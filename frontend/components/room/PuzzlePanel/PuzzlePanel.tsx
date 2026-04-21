@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import useSubmitAnswer from "@/hooks/useSubmitAnswer";
-import { useGameContext } from "@/context/GameContext";
 import type { Puzzle } from "@/types/game";
 
 type PuzzlePanelProps = {
@@ -14,7 +13,6 @@ const PuzzlePanel = ({ puzzle, gameId }: PuzzlePanelProps) => {
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<"correct" | "wrong" | null>(null);
   const { mutate, isPending } = useSubmitAnswer();
-  const { save } = useGameContext();
 
   const handleSubmit = () => {
     if (!answer.trim() || isPending) return;
@@ -27,9 +25,6 @@ const PuzzlePanel = ({ puzzle, gameId }: PuzzlePanelProps) => {
           if (data.correct) {
             setAnswer("");
           }
-        },
-        onSettled: () => {
-          save();
         },
       },
     );

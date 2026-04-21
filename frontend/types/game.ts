@@ -45,12 +45,19 @@ export type Room = {
  */
 export type GameState = {
   hintsUsed: number;
-  maxHints: number;
   timeRemainingSeconds: number;
   score: number;
   solvedPuzzleIds: number[];
   collectedObjectIds: number[];
   usedObjectIds: number[];
+  unlockedRoomIds: number[];
+  objectInteractions: Record<number, ObjectInteraction>;
+};
+
+export type ObjectInteraction = {
+  consulted?: boolean;
+  activated?: boolean;
+  used?: boolean;
 };
 
 export type Game = {

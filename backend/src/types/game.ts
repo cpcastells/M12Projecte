@@ -15,7 +15,6 @@ export type ObjectInteraction = {
 
 export type GameState = {
   hintsUsed: number;
-  maxHints: number; // Límit de pistes per sala. Actualment derivat de GAME_CONSTANTS.
   timeRemainingSeconds: number;
   score: number;
   solvedPuzzleIds: number[];
