@@ -3,16 +3,31 @@
 import Navbar from "@/components/layout/Navbar";
 import GlitchText from "@/components/effects/GlitchText/GlitchText";
 import { LANDING_COPY } from "@/constants/copy/landing";
+import { PATHS } from "@/constants/paths";
 import { useAuth } from "@/context/AuthContext";
+import useActiveGame from "@/hooks/useActiveGame";
 import { useRouter } from "next/navigation";
+
+function formatRoomUrl(order: number): string {
+  return String(order).padStart(2, "0");
+}
 
 export default function LandingPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
+  const { data, isLoading: isLoadingActiveGame } = useActiveGame();
 
-  // Función para ir a narrativa
-  const goToNarrative = () => {
-    router.push("/narrative");
+  const activeGame =
+    data?.game && data.game.status === "active" ? data.game : null;
+
+  const handlePrimaryAction = () => {
+    if (activeGame) {
+      router.push(
+        `${PATHS.ROOM}/${formatRoomUrl(activeGame.currentRoom.order)}`,
+      );
+      return;
+    }
+    router.push(PATHS.NARRATIVE);
   };
 
   return (
@@ -66,11 +81,15 @@ export default function LandingPage() {
         <div className="mt-16 flex flex-col items-center gap-6 w-full">
           {isAuthenticated ? (
             <button
-              onClick={goToNarrative}
-              className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black cursor-pointer"
+              onClick={handlePrimaryAction}
+              disabled={isLoadingActiveGame}
+              className="group relative px-20 py-4 border border-cyan-400 text-cyan-400 text-xs tracking-[0.4em] uppercase transition-all hover:bg-cyan-400 hover:text-black cursor-pointer disabled:opacity-50 disabled:cursor-wait"
             >
               <span className="relative z-10 font-bold">
-                ▶ {LANDING_COPY.ctaPrimary}
+                ▶{" "}
+                {activeGame
+                  ? LANDING_COPY.ctaContinue
+                  : LANDING_COPY.ctaPrimary}
               </span>
             </button>
           ) : (

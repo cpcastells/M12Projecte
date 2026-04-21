@@ -1,13 +1,37 @@
 "use client";
 import Navbar from "@/components/layout/Navbar";
 import { NARRATIVE_COPY } from "@/constants/copy/narrative";
+import { PATHS } from "@/constants/paths";
+import useStartGame from "@/hooks/useStartGame";
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+function formatRoomUrl(order: number): string {
+  return String(order).padStart(2, "0");
+}
 
 function NarrativePage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const startGame = useStartGame();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const goToRoom = () => {
-    router.push("/room/01");
+  const handleEnterRoom = () => {
+    if (startGame.isPending) return;
+    setErrorMessage(null);
+    startGame.mutate(undefined, {
+      onSuccess: (response) => {
+        queryClient.setQueryData(["activeGame"], response);
+        const order = response.game.currentRoom.order;
+        router.push(`${PATHS.ROOM}/${formatRoomUrl(order)}`);
+      },
+      onError: () => {
+        setErrorMessage(
+          "No s'ha pogut iniciar la missió. Torna-ho a intentar.",
+        );
+      },
+    });
   };
 
   return (
@@ -86,17 +110,24 @@ function NarrativePage() {
 
           {/* Botones de acción */}
           <div className="mt-6 flex flex-col gap-4">
-            {/* ▶ Entrar a Sala 01 */}
             <button
-              onClick={() => router.push("/room/01")}
-              className="px-10 py-4 bg-cyan-500 text-black font-black text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(34,211,238,0.4)]"
+              onClick={handleEnterRoom}
+              disabled={startGame.isPending}
+              className="px-10 py-4 bg-cyan-500 text-black font-black text-[10px] tracking-[0.3em] uppercase hover:bg-cyan-400 transition-all shadow-[0_0_15px_rgba(34,211,238,0.4)] disabled:opacity-50 disabled:cursor-wait"
             >
-              ▶ ENTRAR SALA 01
+              {startGame.isPending
+                ? "▶ INICIANT MISSIÓ..."
+                : "▶ ENTRAR SALA 01"}
             </button>
 
-            {/* ⇠ Volver a Inicio */}
+            {errorMessage && (
+              <p className="text-[10px] text-red-400 tracking-widest uppercase">
+                {errorMessage}
+              </p>
+            )}
+
             <button
-              onClick={() => router.push("/")}
+              onClick={() => router.push(PATHS.HOME)}
               className="text-[9px] text-cyan-900 tracking-widest uppercase hover:text-cyan-400 transition-colors"
             >
               ⇠ Tornar a inici

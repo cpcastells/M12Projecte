@@ -19,6 +19,7 @@ export const LANDING_COPY = {
     },
   ],
   ctaPrimary: "Iniciar Missió",
+  ctaContinue: "Continuar Missió",
   ctaSecundary: "Registrar-se",
   ctaRegister: "Sol·licitar Accés",
   ctaLogin: "Identificar-se",
