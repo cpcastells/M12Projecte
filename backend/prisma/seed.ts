@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { prisma } from "../src/db/prisma";
 
 type SeedRoom = {
@@ -200,10 +201,51 @@ const ROOMS: SeedRoom[] = [
   },
 ];
 
+// Hash dels camps que, si canvien, trenquen partides en curs.
+// Exclou camps "cosmètics" (noms, descripcions, textos de hints, imatges).
+function computeStructuralHash(rooms: SeedRoom[]): string {
+  const structural = rooms.map((r) => ({
+    code: r.code,
+    order: r.order,
+    isInitial: r.isInitial,
+    puzzle: {
+      solution: r.puzzle.solution,
+      reward: r.puzzle.reward ?? null,
+    },
+    hints: r.puzzle.hints
+      .map((h) => ({ order: h.order }))
+      .sort((a, b) => a.order - b.order),
+    objects: r.objects
+      .map((o) => ({
+        name: o.name,
+        type: o.type,
+        isInteractive: o.isInteractive ?? true,
+        action: o.action ?? null,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name)),
+  }));
+  structural.sort((a, b) => a.code.localeCompare(b.code));
+  return createHash("sha256").update(JSON.stringify(structural)).digest("hex");
+}
+
 async function main() {
   console.log("🌱 Seeding escape room...");
 
-  // Esborrar partides per evitar inconsistències si canvia el contingut
+  const contentHash = computeStructuralHash(ROOMS);
+  const existing = await prisma.seedMeta.findUnique({ where: { id: 1 } });
+
+  if (existing && existing.contentHash === contentHash) {
+    console.log("Seed up-to-date, skipping.");
+    return;
+  }
+
+  console.log(
+    existing
+      ? "Structural change detected, reseeding (partides seran esborrades)."
+      : "First seed run, initializing.",
+  );
+
+  // Esborrar partides perquè el contingut estructural ha canviat
   await prisma.game.deleteMany();
 
   // Per cada sala: upsert sala + upsert puzzle + recrear hints/objects
@@ -279,6 +321,12 @@ async function main() {
 
     console.log(`Seeded ${room.code} (order ${room.order})`);
   }
+
+  await prisma.seedMeta.upsert({
+    where: { id: 1 },
+    update: { contentHash },
+    create: { id: 1, contentHash },
+  });
 
   console.log("Seed completat!");
 }
