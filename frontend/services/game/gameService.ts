@@ -49,3 +49,13 @@ export function submitAnswer(
 export function requestHint(gameId: number): Promise<UseHintResponse> {
   return authRequest<UseHintResponse>(ENDPOINTS.game.hint(gameId), "POST");
 }
+
+/**
+ * Marca la partida com abandonada. Única transició permesa al backend
+ * via PATCH (whitelist estricta: active → abandoned).
+ */
+export function abandonGame(gameId: number): Promise<GameResponse> {
+  return authRequest<GameResponse>(ENDPOINTS.game.patch(gameId), "PATCH", {
+    status: "abandoned",
+  });
+}
