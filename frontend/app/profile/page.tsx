@@ -5,10 +5,18 @@ import { useRouter } from "next/navigation";
 import { User, DEFAULT_USER } from "@/constants/copy/profile";
 import { PATHS } from "@/constants/paths";
 import { useAuth } from "@/context/AuthContext";
+import useActiveGame from "@/hooks/useActiveGame";
+
+const formatRoomUrl = (order: number): string => String(order).padStart(2, "0");
 
 export default function ProfilePage() {
   const router = useRouter();
   const { logout, user: authUser } = useAuth();
+  const { data: activeGameData } = useActiveGame();
+  const activeGame =
+    activeGameData?.game && activeGameData.game.status === "active"
+      ? activeGameData.game
+      : null;
   const [user, setUser] = useState<User>({
     ...DEFAULT_USER,
     username: authUser?.username ?? DEFAULT_USER.username,
@@ -67,35 +75,15 @@ export default function ProfilePage() {
     setTimeout(() => setSuccess(false), 2000);
   };
 
-  //Fetch de la partida activa
+  // Sincronitza dades de la partida activa a l'estat local de l'usuari
   useEffect(() => {
-    const loadActiveGame = async () => {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      try {
-        const res = await fetch("http://localhost:3000/game/me/active", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (res.status === 404) return;
-
-        const data = await res.json();
-        setUser((prev) => ({
-          ...prev,
-          currentRoom: data.currentRoom,
-          completion: data.completion,
-          startDate: data.startDate,
-          status: "EN CURS",
-        }));
-      } catch (err) {
-        console.error("Error fetching active game:", err);
-      }
-    };
-
-    // Llamamos a la función async
-    loadActiveGame();
-  }, []);
+    if (!activeGame) return;
+    setUser((prev) => ({
+      ...prev,
+      currentRoom: String(activeGame.currentRoom.order),
+      status: "EN CURS",
+    }));
+  }, [activeGame]);
   return (
     <main className="min-h-screen bg-[#010d16] text-cyan-50 font-mono flex flex-col">
       <Navbar />
@@ -198,13 +186,19 @@ export default function ProfilePage() {
                 </div>
               </div>
 
-              <button
-                className="btn-primary w-full mt-4"
-                onClick={() => router.push(`/sala${user.currentRoom}`)}
-              >
-                {" "}
-                ▶ CONTINUAR PARTIDA
-              </button>
+              {activeGame && (
+                <button
+                  className="btn-primary w-full mt-4"
+                  onClick={() =>
+                    router.push(
+                      `${PATHS.ROOM}/${formatRoomUrl(activeGame.currentRoom.order)}`,
+                    )
+                  }
+                >
+                  {" "}
+                  ▶ CONTINUAR PARTIDA
+                </button>
+              )}
             </div>
 
             <div className="flex flex-col gap-2">
@@ -233,44 +227,48 @@ export default function ProfilePage() {
           {/* Right Panel */}
           <div className="w-2/3 flex flex-col gap-4">
             {/* Partida Actual */}
-            <div className="profile-section bg-[#01111a] border border-cyan-800 rounded p-4">
-              <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">
-                Partida Actual
-              </div>
-              <div className="grid grid-cols-3 gap-4 mb-4 text-[10px]">
-                <div>
-                  <div className="text-muted uppercase mb-1">SALA ACTUAL</div>
+            {activeGame && (
+              <div className="profile-section bg-[#01111a] border border-cyan-800 rounded p-4">
+                <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">
+                  Partida Actual
+                </div>
+                <div className="grid grid-cols-3 gap-4 mb-4 text-[10px]">
+                  <div>
+                    <div className="text-muted uppercase mb-1">SALA ACTUAL</div>
 
-                  <div className="text-cyan font-bold text-lg">
-                    {" "}
-                    Sala {user.currentRoom} / 03
+                    <div className="text-cyan font-bold text-lg">
+                      {" "}
+                      Sala {user.currentRoom} / 03
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted uppercase mb-1">INICI</div>
+                    <div className="text-secondary text-sm">
+                      2087.03.14 {user.startDate}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted uppercase mb-1">ESTAT</div>
+                    <span className="badge badge-amber">
+                      EN CURS {user.status}
+                    </span>
                   </div>
                 </div>
-                <div>
-                  <div className="text-muted uppercase mb-1">INICI</div>
-                  <div className="text-secondary text-sm">
-                    2087.03.14 {user.startDate}
-                  </div>
+                <div className="text-muted text-[10px] mb-1">
+                  PROGRÉS GLOBAL
                 </div>
-                <div>
-                  <div className="text-muted uppercase mb-1">ESTAT</div>
-                  <span className="badge badge-amber">
-                    EN CURS {user.status}
-                  </span>
+                <div className="w-full h-2 bg-cyan-900 rounded">
+                  <div
+                    className="h-2 bg-cyan-400 rounded"
+                    style={{ width: `${user.completion}%` }}
+                  />
+                </div>
+                <div className="flex justify-between text-muted text-[10px] mt-1">
+                  <span>Sala {user.currentRoom} — Control Central</span>
+                  <span>{user.completion}% completat</span>
                 </div>
               </div>
-              <div className="text-muted text-[10px] mb-1">PROGRÉS GLOBAL</div>
-              <div className="w-full h-2 bg-cyan-900 rounded">
-                <div
-                  className="h-2 bg-cyan-400 rounded"
-                  style={{ width: `${user.completion}%` }}
-                />
-              </div>
-              <div className="flex justify-between text-muted text-[10px] mt-1">
-                <span>Sala {user.currentRoom} — Control Central</span>
-                <span>{user.completion}% completat</span>
-              </div>
-            </div>
+            )}
 
             {/* Game Log */}
             <div className="profile-section bg-[#01111a] border border-cyan-800 rounded p-4 text-[10px]">
