@@ -34,7 +34,7 @@ const ROOMS: SeedRoom[] = [
     code: "ROOM_1",
     name: "Sistema Central",
     description: "Sala de control del sistema central de l’estació submarina.",
-    image: "/img/rooms/sistema-central.jpg",
+    image: "/img/rooms/sistema-central.webp",
     order: 1,
     isInitial: true,
     puzzle: {
@@ -97,7 +97,7 @@ const ROOMS: SeedRoom[] = [
     name: "Laboratori de Recerca",
     description:
       "Laboratori científic de l’estació on s’analitzaven mostres biològiques.",
-    image: "/img/rooms/laboratori.jpg",
+    image: "/img/rooms/laboratori.webp",
     order: 2,
     isInitial: false,
     puzzle: {
@@ -158,7 +158,7 @@ const ROOMS: SeedRoom[] = [
     name: "Mòdul d’Evacuació",
     description:
       "Última cambra abans de la sortida. Només falta validar la clau final.",
-    image: "/img/rooms/sortida.jpg",
+    image: "/img/rooms/sortida.webp",
     order: 3,
     isInitial: false,
     puzzle: {
@@ -202,7 +202,6 @@ const ROOMS: SeedRoom[] = [
 ];
 
 // Hash dels camps que, si canvien, trenquen partides en curs.
-// Exclou camps "cosmètics" (noms, descripcions, textos de hints, imatges).
 function computeStructuralHash(rooms: SeedRoom[]): string {
   const structural = rooms.map((r) => ({
     code: r.code,
@@ -228,10 +227,18 @@ function computeStructuralHash(rooms: SeedRoom[]): string {
   return createHash("sha256").update(JSON.stringify(structural)).digest("hex");
 }
 
+// Hash de tot el contingut (estructural + cosmètic). Si canvia qualsevol camp
+// —imatges, textos, descripcions...— cal reaplicar upserts, però sense tocar partides.
+function computeContentHash(rooms: SeedRoom[]): string {
+  const sorted = [...rooms].sort((a, b) => a.code.localeCompare(b.code));
+  return createHash("sha256").update(JSON.stringify(sorted)).digest("hex");
+}
+
 async function main() {
   console.log("🌱 Seeding escape room...");
 
-  const contentHash = computeStructuralHash(ROOMS);
+  const structuralHash = computeStructuralHash(ROOMS);
+  const contentHash = computeContentHash(ROOMS);
   const existing = await prisma.seedMeta.findUnique({ where: { id: 1 } });
 
   if (existing && existing.contentHash === contentHash) {
@@ -239,14 +246,24 @@ async function main() {
     return;
   }
 
-  console.log(
-    existing
-      ? "Structural change detected, reseeding (partides seran esborrades)."
-      : "First seed run, initializing.",
-  );
+  const structuralChanged =
+    !existing || existing.structuralHash !== structuralHash;
 
-  // Esborrar partides perquè el contingut estructural ha canviat
-  await prisma.game.deleteMany();
+  if (!existing) {
+    console.log("First seed run, initializing.");
+  } else if (structuralChanged) {
+    console.log(
+      "Structural change detected, reseeding (partides seran esborrades).",
+    );
+  } else {
+    console.log(
+      "Cosmetic change detected, refreshing content (partides intactes).",
+    );
+  }
+
+  if (structuralChanged) {
+    await prisma.game.deleteMany();
+  }
 
   // Per cada sala: upsert sala + upsert puzzle + recrear hints/objects
   for (const r of ROOMS) {
@@ -324,8 +341,8 @@ async function main() {
 
   await prisma.seedMeta.upsert({
     where: { id: 1 },
-    update: { contentHash },
-    create: { id: 1, contentHash },
+    update: { structuralHash, contentHash },
+    create: { id: 1, structuralHash, contentHash },
   });
 
   console.log("Seed completat!");
