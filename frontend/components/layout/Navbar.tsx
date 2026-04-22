@@ -57,7 +57,7 @@ export default function Navbar() {
         href: `${PATHS.ROOM}/${formatRoomUrl(r.order)}`,
         disabled: r.order > currentOrder,
       }));
-      routesToRender.push({ label: "Salas", dropdown: roomsDropdown });
+      routesToRender.push({ label: "Sales", dropdown: roomsDropdown });
     }
 
     routesToRender.push(
@@ -85,26 +85,31 @@ export default function Navbar() {
               <span className="cursor-pointer hover:text-cyan-400">
                 {route.label}
               </span>
-              <div className="absolute hidden group-hover:flex flex-col bg-cyan-950 border border-cyan-500/30 mt-2 p-2 z-50">
-                {route.dropdown.map((item) =>
-                  item.disabled ? (
-                    <span
-                      key={item.href}
-                      aria-disabled="true"
-                      className="text-cyan-800/60 text-sm py-1 cursor-not-allowed line-through"
-                    >
-                      {item.label}
-                    </span>
-                  ) : (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="text-cyan-400 text-sm py-1 hover:text-cyan-200"
-                    >
-                      {item.label}
-                    </Link>
-                  ),
-                )}
+              {/* Wrapper amb padding-top perquè el gap entre el label i el menú
+                  segueixi sent part del hover (evita que el popup es tanqui
+                  en moure el cursor des de SALES cap al dropdown). */}
+              <div className="absolute left-0 top-full hidden group-hover:block pt-2 z-50">
+                <div className="flex flex-col bg-cyan-950 border border-cyan-500/30 p-2">
+                  {route.dropdown.map((item) =>
+                    item.disabled ? (
+                      <span
+                        key={item.href}
+                        aria-disabled="true"
+                        className="text-cyan-800/60 text-sm py-1 cursor-not-allowed line-through"
+                      >
+                        {item.label}
+                      </span>
+                    ) : (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="text-cyan-400 text-sm py-1 hover:text-cyan-200"
+                      >
+                        {item.label}
+                      </Link>
+                    ),
+                  )}
+                </div>
               </div>
             </div>
           ) : route.href ? (
