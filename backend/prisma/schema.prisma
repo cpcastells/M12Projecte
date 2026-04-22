@@ -32,13 +32,15 @@ model User {
   passwordHash String
   role         Role   @default(user)
 
-  // 1 usuari = 1 partida
-  game Game?
+  // Un usuari pot tenir múltiples partides al llarg del temps.
+  // La invariant "màxim una partida active per usuari" viu al startGame.usecase,
+  // no a BD: mantenim la migració simple i la regla al domini.
+  games Game[]
 }
 
 model Game {
   id     Int  @id @default(autoincrement())
-  userId Int  @unique
+  userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   status        GameStatus @default(active)
@@ -49,6 +51,8 @@ model Game {
   state     Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
 }
 
 model Room {

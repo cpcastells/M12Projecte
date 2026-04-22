@@ -6,6 +6,7 @@ import { saveGameProgressUseCase } from "../usecases/saveGameProgress.usecase";
 import { getMyActiveGameUseCase } from "../usecases/getMyActiveGame.usecase";
 import { getMyLastGameUseCase } from "../usecases/getMyLastGame.usecase";
 import { registerObjectInteractionUseCase } from "../usecases/registerObjectInteraction.usecase";
+import { patchGameUseCase } from "../usecases/patchGame.usecase";
 
 /**
  * Inicia (o recupera) la partida de l'usuari autenticat.
@@ -150,6 +151,25 @@ export async function registerObjectInteraction(req: Request, res: Response) {
     Number(objectId),
     interaction,
   );
+
+  return res.status(result.status).json(result.body);
+}
+
+/**
+ * PATCH /game/:id
+ *
+ * Modifica camps controlats d'una partida. Actualment només permet la
+ * transició active → abandoned (timer esgotat o abandonament manual).
+ * La lògica de whitelist i validació viu al patchGameUseCase.
+ */
+export async function patchGame(req: Request, res: Response) {
+  if (!req.user) {
+    return res.status(401).json({ message: "Usuari no autenticat" });
+  }
+
+  const userId = Number(req.user.id);
+  const gameId = Number(req.params.id);
+  const result = await patchGameUseCase(userId, gameId, req.body);
 
   return res.status(result.status).json(result.body);
 }

@@ -3,35 +3,33 @@ import { gameActionRepository } from "../repositories/gameAction.repository";
 import { defaultGameState } from "../utils/gameState";
 
 /**
- * Use case: iniciar o recuperar la partida d'un usuari.
+ * Use case: iniciar o recuperar la partida ACTIVA d'un usuari.
  *
  * Responsabilitats:
- * - Comprovar si l'usuari ja té una partida existent.
- * - Crear una nova partida si no existeix, assignant la sala inicial.
- * - Retornar la partida amb informació safe per al frontend.
+ * - Si hi ha una partida amb status=active, retornar-la.
+ * - Si no n'hi ha (totes les anteriors són completed/abandoned), crear-ne una
+ *   nova amb la sala inicial.
  *
- * Aquest use case encapsula tota la lògica de negoci relacionada
- * amb la creació i inicialització de la partida.
- * Notes d'arquitectura:
- * - Aquest use case NO parla amb Prisma directament.
- * - Les queries i includes (safe/validation) estan encapsulats als repositories.
+ * Invariant: un usuari pot tenir N partides històriques però com a màxim
+ * una amb status=active. Aquesta invariant viu al use case (no a la BD)
+ * per mantenir la migració simple; qualsevol altra escriptura que vulgui
+ * crear partides ha de respectar-la.
  */
 export async function startGameUseCase(userId: number) {
   try {
-    // 1 user = 1 game, si existeix la retornem
-    const existing = await gameActionRepository.findByUserWithRoom(userId);
+    const existingActive =
+      await gameActionRepository.findActiveByUserWithRoom(userId);
 
-    if (existing) {
+    if (existingActive) {
       return {
         status: 200,
         body: {
-          message: "Ja tens una partida. Pots continuar-la o abandonar-la.",
-          game: existing,
+          message: "Ja tens una partida activa. Pots continuar-la.",
+          game: existingActive,
         },
       };
     }
 
-    // Busquem la sala inicial
     const initialRoom = await roomRepository.findInitialRoom();
 
     if (!initialRoom) {
@@ -41,7 +39,6 @@ export async function startGameUseCase(userId: number) {
       };
     }
 
-    //Crearem la partida nova
     const game = await gameActionRepository.createNewGame(
       userId,
       initialRoom.id,

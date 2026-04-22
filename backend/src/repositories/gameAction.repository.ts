@@ -22,12 +22,16 @@ export const gameActionRepository = {
   // ****** QUERIES "by user" (start / me/*) *****************
 
   /**
-   * Retorna la partida de l'usuari (1 user = 1 game) amb la sala actual (SAFE).
-   * Utilitzada per startGame i getMyLastGame.
+   * Retorna l'última partida de l'usuari (qualsevol estat) amb la sala actual.
+   * Després de relaxar la restricció 1:1, `startGame` només hauria de mirar
+   * si hi ha una partida ACTIVA (veure findActiveByUserWithRoom). Aquest
+   * helper es manté per a consumidors que realment volen l'última partida
+   * històrica.
    */
-  findByUserWithRoom(userId: number) {
-    return prisma.game.findUnique({
+  findLatestByUserWithRoom(userId: number) {
+    return prisma.game.findFirst({
       where: { userId },
+      orderBy: { createdAt: "desc" },
       include: { currentRoom: { include: roomIncludeForResponse } },
     });
   },
@@ -54,19 +58,6 @@ export const gameActionRepository = {
         userId,
         status: GameStatus.active,
       },
-    });
-  },
-
-  /**
-   * Retorna l'última partida (ordenada per createdAt desc).
-   * Amb el teu schema (1 user = 1 game) això normalment serà la mateixa.
-   * Però ho deixem per si algun dia canvieu el model.
-   */
-  findLastByUserWithRoom(userId: number) {
-    return prisma.game.findFirst({
-      where: { userId },
-      orderBy: { createdAt: "desc" },
-      include: { currentRoom: { include: roomIncludeForResponse } },
     });
   },
 
@@ -191,6 +182,20 @@ export const gameActionRepository = {
     return prisma.game.update({
       where: { id: gameId },
       data: { state },
+      include: {
+        currentRoom: { include: roomIncludeForResponse },
+      },
+    });
+  },
+
+  /**
+   * Actualitza el status de la partida i retorna la partida amb la sala (SAFE).
+   * Usat només per la transició active → abandoned.
+   */
+  updateStatus(gameId: number, status: GameStatus) {
+    return prisma.game.update({
+      where: { id: gameId },
+      data: { status },
       include: {
         currentRoom: { include: roomIncludeForResponse },
       },

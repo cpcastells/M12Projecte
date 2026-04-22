@@ -8,6 +8,7 @@ import {
   submitPuzzleAnswer,
   requestHint,
   registerObjectInteraction,
+  patchGame,
 } from "../controllers/game.controller";
 
 const router = Router();
@@ -36,6 +37,9 @@ router.post("/:id/hint", authenticate, requestHint);
 
 // Registrar interacció amb un objecte
 router.post("/:id/interactions", authenticate, registerObjectInteraction);
+
+// Modificar camps controlats de la partida (actualment: status → abandoned)
+router.patch("/:id", authenticate, patchGame);
 
 // Partida activa
 router.get("/me/active", authenticate, getMyActiveGame);

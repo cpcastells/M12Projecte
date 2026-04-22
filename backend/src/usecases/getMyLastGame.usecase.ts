@@ -13,7 +13,7 @@ import { gameActionRepository } from "../repositories/gameAction.repository";
  */
 export async function getMyLastGameUseCase(userId: number) {
   try {
-    const game = await gameActionRepository.findLastByUserWithRoom(userId);
+    const game = await gameActionRepository.findLatestByUserWithRoom(userId);
 
     if (!game) {
       return {
