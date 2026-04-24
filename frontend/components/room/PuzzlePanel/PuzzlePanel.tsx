@@ -5,6 +5,7 @@ import useSubmitAnswer from "@/hooks/useSubmitAnswer";
 import { GAME_CONSTANTS } from "@/constants/game";
 import RoomTransitionOverlay from "@/components/room/RoomTransitionOverlay/RoomTransitionOverlay";
 import type { Puzzle } from "@/types/game";
+import { AudioManager } from "@/utils/AudioManager";
 
 type PuzzlePanelProps = {
   puzzle: Puzzle;
@@ -47,6 +48,9 @@ const PuzzlePanel = ({ puzzle, gameId }: PuzzlePanelProps) => {
         onSuccess: (data) => {
           if (data.correct && data.game) {
             setAnswer("");
+
+            AudioManager.play("acert");
+
             setShowTransition(true);
             const game = data.game;
             transitionTimerRef.current = setTimeout(() => {
@@ -55,6 +59,7 @@ const PuzzlePanel = ({ puzzle, gameId }: PuzzlePanelProps) => {
             return;
           }
           setFeedback({ kind: "wrong" });
+          AudioManager.play("error"); //Comentari error
           wrongClearTimerRef.current = setTimeout(() => {
             setFeedback({ kind: "idle" });
           }, WRONG_ANSWER_AUTO_CLEAR_MS);
