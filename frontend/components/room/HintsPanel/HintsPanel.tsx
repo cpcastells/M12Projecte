@@ -31,6 +31,9 @@ const HintsPanel = ({ gameId }: HintsPanelProps) => {
 
   const handleRequestHint = () => {
     if (!canRequestHint) {
+      // Sense pistes disponibles → so d'alarma
+      AudioManager.play("alarm");
+
       setMessage({ kind: "limit", text: HINT_LIMIT_TEXT });
       return;
     }
@@ -42,13 +45,23 @@ const HintsPanel = ({ gameId }: HintsPanelProps) => {
       { gameId },
       {
         onSuccess: (response) => {
+          // Pista rebuda correctament → so de pista
+
+          AudioManager.play("hint");
+
           setRevealedHints((prev) => [...prev, response.hint]);
+
           if (response.hintsRemaining <= 0) {
-            setMessage({ kind: "limit", text: HINT_LIMIT_TEXT });
+            // Última pista → so d'alarma addicional per avisar
             AudioManager.play("alarm");
+
+            setMessage({ kind: "limit", text: HINT_LIMIT_TEXT });
           }
         },
         onError: (error) => {
+          // Error de xarxa → so d'error
+          AudioManager.play("error");
+
           setMessage({
             kind: "error",
             text:
