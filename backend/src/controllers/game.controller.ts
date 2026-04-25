@@ -159,7 +159,7 @@ export async function registerObjectInteraction(req: Request, res: Response) {
  * PATCH /game/:id
  *
  * Modifica camps controlats d'una partida. Actualment només permet la
- * transició active → abandoned (timer esgotat o abandonament manual).
+ * transició active → ended (timer esgotat o abandonament manual) + endReason corresponent.
  * La lògica de whitelist i validació viu al patchGameUseCase.
  */
 export async function patchGame(req: Request, res: Response) {

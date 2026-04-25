@@ -21,8 +21,15 @@ enum Role {
 
 enum GameStatus {
   active
-  abandoned
   completed
+  ended
+}
+
+enum GameEndReason {
+  success
+  timeExpired
+  attemptsExceeded
+  abandoned
 }
 
 model User {
@@ -32,7 +39,7 @@ model User {
   passwordHash String
   role         Role   @default(user)
 
-  // Un usuari pot tenir múltiples partides al llarg del temps.
+  // Un usuari pot tenir múltiples partides al llarg del temps. (User 1 -> N Game)
   // La invariant "màxim una partida active per usuari" viu al startGame.usecase,
   // no a BD: mantenim la migració simple i la regla al domini.
   games Game[]
@@ -43,16 +50,18 @@ model Game {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  status        GameStatus @default(active)
+  status        GameStatus     @default(active)
+  endReason     GameEndReason?
   currentRoomId Int?
-  currentRoom   Room?      @relation(fields: [currentRoomId], references: [id])
+  currentRoom   Room?          @relation(fields: [currentRoomId], references: [id])
 
   // ESTAT DEL JOC (temps, score, pistes, etc.)
   state     Json
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId, status])
+  @@index([userId, status]) // ús funcional (joc actiu per usuari)
+  @@index([status, endReason]) // ús analític (estadístiques)
 }
 
 model Room {
@@ -110,7 +119,7 @@ model InteractiveObject {
 }
 
 model SeedMeta {
-  id            Int      @id @default(1)
-  contentHash   String
-  updatedAt     DateTime @updatedAt
+  id          Int      @id @default(1)
+  contentHash String
+  updatedAt   DateTime @updatedAt
 }

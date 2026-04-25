@@ -7,7 +7,7 @@ import { defaultGameState } from "../utils/gameState";
  *
  * Responsabilitats:
  * - Si hi ha una partida amb status=active, retornar-la.
- * - Si no n'hi ha (totes les anteriors són completed/abandoned), crear-ne una
+ * - Si no n'hi ha (totes les anteriors són completed/ended), crear-ne una
  *   nova amb la sala inicial.
  *
  * Invariant: un usuari pot tenir N partides històriques però com a màxim

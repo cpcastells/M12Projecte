@@ -38,7 +38,7 @@ router.post("/:id/hint", authenticate, requestHint);
 // Registrar interacció amb un objecte
 router.post("/:id/interactions", authenticate, registerObjectInteraction);
 
-// Modificar camps controlats de la partida (actualment: status → abandoned)
+// Modificar camps controlats de la partida (actualment: status → ended i el backend marca endReason=abandoned)
 router.patch("/:id", authenticate, patchGame);
 
 // Partida activa

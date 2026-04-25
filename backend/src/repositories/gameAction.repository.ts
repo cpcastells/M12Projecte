@@ -1,4 +1,4 @@
-import { GameStatus, type Prisma } from "@prisma/client";
+import { GameEndReason, GameStatus, type Prisma } from "@prisma/client";
 import {
   roomIncludeForResponse,
   roomIncludeForValidation,
@@ -130,7 +130,12 @@ export const gameActionRepository = {
   completeGame(gameId: number, state: Prisma.InputJsonValue) {
     return prisma.game.update({
       where: { id: gameId },
-      data: { status: GameStatus.completed, currentRoomId: null, state },
+      data: {
+        status: GameStatus.completed,
+        endReason: GameEndReason.success,
+        currentRoomId: null,
+        state,
+      },
     });
   },
 
@@ -189,8 +194,10 @@ export const gameActionRepository = {
   },
 
   /**
-   * Actualitza el status de la partida i retorna la partida amb la sala (SAFE).
-   * Usat només per la transició active → abandoned.
+   * Actualitza només el status de la partida i retorna la partida amb la sala (SAFE en resposta).
+   * IMPORTANT: No usar per finalitzar partides.
+   * Amb el nou model (status + endReason), les finalitzacions s'han de fer amb
+   * endActiveGame(...) / abandonActiveGame(...) per mantenir consistència i estadístiques.
    */
   updateStatus(gameId: number, status: GameStatus) {
     return prisma.game.update({
@@ -229,5 +236,50 @@ export const gameActionRepository = {
         currentRoom: { include: roomIncludeForResponse },
       },
     });
+  },
+
+  /**
+   * Finalitza una partida ACTIVA de l'usuari de forma atòmica:
+   * - success => status=completed
+   * - qualsevol altre => status=ended
+   *
+   * Nota: No permet finalitzar partides que no siguin actives.
+   */
+  async endActiveGame(
+    gameId: number,
+    userId: number,
+    endReason: GameEndReason,
+    state?: Prisma.InputJsonValue,
+  ) {
+    const nextStatus =
+      endReason === GameEndReason.success
+        ? GameStatus.completed
+        : GameStatus.ended;
+
+    // Fem updateMany per poder filtrar per (id + userId + status=active)
+    const { count } = await prisma.game.updateMany({
+      where: { id: gameId, userId, status: GameStatus.active },
+      data: {
+        status: nextStatus,
+        endReason,
+        currentRoomId: null,
+        ...(state ? { state } : {}),
+      },
+    });
+
+    if (count === 0) return null;
+
+    // Retornem la partida actualitzada amb dades SAFE
+    return prisma.game.findUnique({
+      where: { id: gameId },
+      include: { currentRoom: { include: roomIncludeForResponse } },
+    });
+  },
+
+  /**
+   * Abandonar partida (equivalent de active -> abandoned).
+   */
+  abandonActiveGame(gameId: number, userId: number) {
+    return this.endActiveGame(gameId, userId, GameEndReason.abandoned);
   },
 };
