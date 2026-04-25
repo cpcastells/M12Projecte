@@ -110,7 +110,8 @@ model InteractiveObject {
 }
 
 model SeedMeta {
-  id            Int      @id @default(1)
-  contentHash   String
-  updatedAt     DateTime @updatedAt
+  id             Int      @id @default(1)
+  structuralHash String
+  contentHash    String
+  updatedAt      DateTime @updatedAt
 }

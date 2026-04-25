@@ -37,6 +37,7 @@ export default function RoomPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-[1fr_320px] flex-1">
           <RoomScene
+            room={room}
             objects={objects}
             selectedObjectId={selectedObject?.id ?? null}
             onSelectObject={setSelectedObject}
