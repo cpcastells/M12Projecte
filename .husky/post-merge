@@ -8,3 +8,16 @@ if echo "$changed_files" | grep -q "^package-lock.json$"; then
   echo "📦 package-lock.json ha canviat. Executant npm install..."
   npm install
 fi
+
+# Auto-aplica migracions i reseed quan canvia schema/migrations/seed.
+# Salta si Postgres no està up (no volem fer fallar el pull).
+seed_relevant="$(echo "$changed_files" | grep -E '^backend/prisma/(schema\.prisma|seed\.ts|migrations/)' || true)"
+
+if [ -n "$seed_relevant" ]; then
+  if docker compose ps --status running --services 2>/dev/null | grep -q '^postgres$'; then
+    echo "🗄️  Canvis a Prisma detectats. Aplicant migracions i seed..."
+    npm run db:deploy && npm run db:seed || echo "⚠️  db:deploy/db:seed ha fallat. Revisa-ho manualment."
+  else
+    echo "⚠️  Postgres no està engegat. Salta migracions/seed. Quan engeguis la BD, executa: npm run db:deploy && npm run db:seed"
+  fi
+fi
