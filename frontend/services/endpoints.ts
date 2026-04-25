@@ -28,7 +28,7 @@ export const ENDPOINTS = {
     answer: (gameId: number) => `${BASE_URL}/game/${gameId}/answer`,
     /** POST — Sol·licita una pista */
     hint: (gameId: number) => `${BASE_URL}/game/${gameId}/hint`,
-    /** PATCH — Modifica camps controlats de la partida (status → abandoned) */
+    /** PATCH — Modifica camps controlats de la partida (status → ended; backend marca endReason=abandoned) */
     patch: (gameId: number) => `${BASE_URL}/game/${gameId}`,
   },
 
