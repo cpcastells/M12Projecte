@@ -9,6 +9,7 @@ import {
   requestHint,
   registerObjectInteraction,
   patchGame,
+  askAssistant,
 } from "../controllers/game.controller";
 
 const router = Router();
@@ -34,6 +35,9 @@ router.post("/:id/answer", authenticate, submitPuzzleAnswer);
 
 // Demanar pista per al puzzle actual
 router.post("/:id/hint", authenticate, requestHint);
+
+// Consultar l'assistent ABYSS AI
+router.post("/:id/ask-assistant", authenticate, askAssistant);
 
 // Registrar interacció amb un objecte
 router.post("/:id/interactions", authenticate, registerObjectInteraction);

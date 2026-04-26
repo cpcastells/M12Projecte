@@ -173,3 +173,10 @@ export async function patchGame(req: Request, res: Response) {
 
   return res.status(result.status).json(result.body);
 }
+
+export const askAssistant = async (req: Request, res: Response) => {
+  // TODO: Implementar crida a l'assistent ABYSS AI
+  // Per ara retornem un missatge placeholder
+
+  return res.status(200).json({ message: "Assistent consultat" });
+};
