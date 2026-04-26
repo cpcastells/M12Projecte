@@ -1,13 +1,24 @@
 import { gameActionRepository } from "../../repositories/gameAction.repository";
 import {
   applyCorrectAnswer,
+  resetAttemptsForNextRoom,
   resetHintsForNextRoom,
 } from "../../domain/submitPuzzleAnswer.logic";
+import { GameState } from "../../types/game";
+
+type GameForSubmitAnswer = {
+  currentRoom: {
+    order: number;
+    puzzle: {
+      id: number;
+    };
+  };
+};
 
 export async function handleCorrectAnswer(
   gameId: number,
-  game: any,
-  currentState: any,
+  game: GameForSubmitAnswer,
+  currentState: GameState,
 ) {
   // efectes de resposta correcta (domain)
   let newState = applyCorrectAnswer(currentState, game.currentRoom.puzzle.id);
@@ -40,7 +51,10 @@ export async function handleCorrectAnswer(
     newState = { ...newState, unlockedRoomIds: [...unlocked, nextRoom.id] };
   }
 
-  const advanceState = resetHintsForNextRoom(newState);
+  // Reset pistes + intents
+  const advanceState = resetAttemptsForNextRoom(
+    resetHintsForNextRoom(newState),
+  );
 
   const updatedGame = await gameActionRepository.advanceRoom(
     gameId,

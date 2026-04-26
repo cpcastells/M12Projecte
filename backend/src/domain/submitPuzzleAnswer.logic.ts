@@ -31,10 +31,12 @@ export function isCorrectAnswer(answer: string, solution: string): boolean {
  * Regles de negoci:
  * - Redueix la puntuació segons SCORE_WRONG_ANSWER_PENALTY.
  * - La puntuació mai pot baixar de MIN_SCORE.
+ * - Afegeix un intent a la resolució de l'enigme
  */
 export function applyWrongAnswer(state: GameState): GameState {
   return {
     ...state,
+    attemptsUsed: state.attemptsUsed + 1,
     score: Math.max(
       GAME_CONSTANTS.MIN_SCORE,
       state.score - GAME_CONSTANTS.SCORE_WRONG_ANSWER_PENALTY,
@@ -80,4 +82,26 @@ export function applyCorrectAnswer(
  */
 export function resetHintsForNextRoom(state: GameState): GameState {
   return { ...state, hintsUsed: 0 };
+}
+
+/**
+ * Reinicia el comptador d'intents utilitzats per resoldre l'enigma.
+ *
+ * S'utilitza en canviar de sala, ja que el límit
+ * d'intents és per enigma (sala) i no global.
+ */
+export function resetAttemptsForNextRoom(state: GameState): GameState {
+  return { ...state, attemptsUsed: 0 };
+}
+
+/**
+ *
+ * * Indica si s'han superat els intents permesos.
+ *
+ * Regla de negoci:
+ * - El nombre d'intents utilitzats no pot superar MAX_ATTEMPTS.
+ *
+ * */
+export function hasExceededAttempts(state: GameState): boolean {
+  return state.attemptsUsed >= GAME_CONSTANTS.MAX_ATTEMPTS;
 }

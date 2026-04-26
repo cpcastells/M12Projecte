@@ -47,11 +47,24 @@ export async function submitPuzzleAnswerUseCase(
     const correct = isCorrectAnswer(answer, puzzle.solution);
 
     if (!correct) {
-      const response = await handleWrongAnswer(gameId, currentState);
+      const response = await handleWrongAnswer(gameId, userId, currentState);
       return { status: 200, body: response };
     }
 
-    const response = await handleCorrectAnswer(gameId, game, currentState);
+    const gameForCorrectAnswer = {
+      currentRoom: {
+        order: game.currentRoom.order,
+        puzzle: {
+          id: puzzle.id,
+        },
+      },
+    };
+
+    const response = await handleCorrectAnswer(
+      gameId,
+      gameForCorrectAnswer,
+      currentState,
+    );
     return { status: 200, body: response };
   } catch (error) {
     console.error(error);

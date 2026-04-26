@@ -45,6 +45,7 @@ export type Room = {
  */
 export type GameState = {
   hintsUsed: number;
+  attemptsUsed: number;
   timeRemainingSeconds: number;
   score: number;
   solvedPuzzleIds: number[];
@@ -92,6 +93,8 @@ export type SolveEnigmaRequest = {
 export type SolveEnigmaResponse = {
   correct: boolean;
   message: string;
+  gameOver?: boolean;
+  endReason?: GameEndReason;
   nextRoom?: Room;
   // El backend només inclou `game` quan la resposta és correcta (retorna el
   // game avançat). Quan és incorrecta, retorna només l'`state` actualitzat.

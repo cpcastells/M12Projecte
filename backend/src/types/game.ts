@@ -15,6 +15,7 @@ export type ObjectInteraction = {
 
 export type GameState = {
   hintsUsed: number;
+  attemptsUsed: number;
   timeRemainingSeconds: number;
   score: number;
   solvedPuzzleIds: number[];

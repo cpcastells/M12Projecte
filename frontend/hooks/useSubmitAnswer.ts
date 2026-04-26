@@ -24,6 +24,13 @@ const useSubmitAnswer = () => {
   >({
     mutationFn: ({ gameId, answer }) => submitAnswer(gameId, answer),
     onSuccess: (data) => {
+      // Nou cas: el backend diu que el joc ha acabat
+      if (data.gameOver) {
+        // No toquem la cache: el joc ja està tancat
+        // El component decidirà què mostrar
+        return;
+      }
+
       if (data.correct) return;
       // En resposta incorrecta, el backend només retorna l'state actualitzat
       // (no el game sencer). Fusionem dins la cache existent per preservar
