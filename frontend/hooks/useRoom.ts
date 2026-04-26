@@ -13,7 +13,7 @@ function formatRoomUrl(order: number): string {
  *
  * Redireccions:
  * - Sense partida en cache → /narrative (l'usuari encara no n'ha iniciat cap).
- * - Partida amb status != active (completed/abandoned) → /game-over.
+ * - Partida amb status != active (completed/ended) → /game-over.
  * - URL no coincideix amb la sala actual → /room/0X de la sala actual.
  */
 const useRoom = () => {

@@ -52,10 +52,10 @@ export function requestHint(gameId: number): Promise<UseHintResponse> {
 
 /**
  * Marca la partida com abandonada. Única transició permesa al backend
- * via PATCH (whitelist estricta: active → abandoned).
+ * via PATCH (whitelist estricta: active → ended) i el backend marca end.
  */
 export function abandonGame(gameId: number): Promise<GameResponse> {
   return authRequest<GameResponse>(ENDPOINTS.game.patch(gameId), "PATCH", {
-    status: "abandoned",
+    status: "ended",
   });
 }

@@ -60,9 +60,18 @@ export type ObjectInteraction = {
   used?: boolean;
 };
 
+export type GameStatus = "active" | "completed" | "ended";
+
+export type GameEndReason =
+  | "success"
+  | "timeExpired"
+  | "attemptsExceeded"
+  | "abandoned";
+
 export type Game = {
   id: number;
-  status: "active" | "completed" | "abandoned";
+  status: GameStatus;
+  endReason?: GameEndReason | null;
   currentRoom: Room;
   state: GameState | null;
   createdAt: string;

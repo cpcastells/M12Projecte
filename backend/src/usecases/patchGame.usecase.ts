@@ -4,12 +4,13 @@ import { gameActionRepository } from "../repositories/gameAction.repository";
 /**
  * Use case: modificar camps controlats d'una partida.
  *
- * Whitelist estricta: només s'accepta la transició `active → abandoned`.
+ * Whitelist estricta: només s'accepta la transició `active → ended`
+ * i el sistema marca el motiu com `abandoned`.
  * Qualsevol altra clau al body és rebutjada amb 400. Les transicions
  * `active → completed` es fan exclusivament des del flux de resposta correcta
  * (handleCorrectAnswer); aquest endpoint no hi ha manera de forçar-les.
  */
-const ALLOWED_STATUSES: Set<GameStatus> = new Set([GameStatus.abandoned]);
+const ALLOWED_STATUSES: Set<GameStatus> = new Set([GameStatus.ended]);
 
 export async function patchGameUseCase(
   userId: number,
@@ -63,15 +64,22 @@ export async function patchGameUseCase(
       };
     }
 
-    const updated = await gameActionRepository.updateStatus(
+    const updated = await gameActionRepository.abandonActiveGame(
       gameId,
-      nextStatus as GameStatus,
+      userId,
     );
+
+    if (!updated) {
+      return {
+        status: 404,
+        body: { message: "Partida activa no trobada" },
+      };
+    }
 
     return {
       status: 200,
       body: {
-        message: "Partida actualitzada",
+        message: "Partida abandonada",
         game: updated,
       },
     };

@@ -4,7 +4,7 @@ import type { GameResponse } from "@/types/game";
 
 /**
  * Marca la partida com abandonada i sincronitza la cache activeGame amb el
- * game retornat (ara amb status=abandoned). useRoom detectarà el canvi i
+ * game retornat (ara amb status=ended i endReason=abandoned)). useRoom detectarà el canvi i
  * redirigirà a /game-over.
  */
 const useAbandonGame = () => {

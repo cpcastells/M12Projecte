@@ -31,6 +31,14 @@ export default function GameOverPage() {
   const status = game?.status ?? null;
   const state = game?.state ?? null;
 
+  const endReason = game?.endReason ?? null;
+
+  const isCompleted = status === "completed";
+  const isEnded = status === "ended";
+
+  const isTimeExpired = isEnded && endReason === "timeExpired";
+  const isAttemptsExceeded = isEnded && endReason === "attemptsExceeded";
+
   const timeUsedSeconds = state
     ? Math.max(
         0,
@@ -39,24 +47,21 @@ export default function GameOverPage() {
     : 0;
   const score = state?.score ?? 0;
 
-  const title =
-    status === "completed"
-      ? "MISSIÓ COMPLETADA"
-      : status === "abandoned"
-        ? "MISSIÓ FALLIDA"
-        : "PARTIDA FINALITZADA";
+  const title = isCompleted
+    ? "MISSIÓ COMPLETADA"
+    : isEnded
+      ? "MISSIÓ FALLIDA"
+      : "PARTIDA FINALITZADA";
 
-  const abandonedByTimer =
-    status === "abandoned" && (state?.timeRemainingSeconds ?? 0) <= 0;
-
-  const subtitle =
-    status === "abandoned"
-      ? abandonedByTimer
+  const subtitle = isCompleted
+    ? "Has desactivat la quarantena i recuperat el contacte amb la superfície."
+    : isEnded
+      ? isTimeExpired
         ? "Temps esgotat. L'Abyss AI ha segellat els compartiments."
-        : "Has abandonat la missió abans d'hora. L'Abyss AI manté els compartiments segellats."
-      : status === "completed"
-        ? "Has desactivat la quarantena i recuperat el contacte amb la superfície."
-        : "";
+        : isAttemptsExceeded
+          ? "Has superat el nombre màxim d'intents. L'Abyss AI ha blocat el sistema."
+          : "Has abandonat la missió abans d'hora. L'Abyss AI manté els compartiments segellats."
+      : "";
 
   const handleNewMission = () => {
     if (startGame.isPending) return;
@@ -88,7 +93,9 @@ export default function GameOverPage() {
         ) : !game ? (
           <div className="flex flex-col items-center gap-4 max-w-md text-center">
             <p className="text-sm text-cyan-600 tracking-widest">
-              No s'ha trobat cap partida finalitzada.
+              {/*Text dins string JS per evitar la regla ESLint react/no-unescaped-entities (apòstrofs en JSX literal)
+               */}
+              {"No s'ha trobat cap partida finalitzada."}
             </p>
             <button
               onClick={handleNewMission}
@@ -105,7 +112,7 @@ export default function GameOverPage() {
             </div>
             <h1
               className={`text-4xl md:text-5xl font-black tracking-[0.3em] ${
-                status === "completed" ? "text-green-400" : "text-red-400"
+                isCompleted ? "text-green-400" : "text-red-400"
               }`}
             >
               {title}
