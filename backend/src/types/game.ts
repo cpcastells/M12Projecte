@@ -43,7 +43,7 @@ export type GameState = {
  * No reflecteix configuració global ni contingut estàtic del joc,
  * sinó accions concretes del jugador durant la partida.
  */
-export interface GameAIState {
+/*export interface GameAIState {
   enabled: boolean;
   hints: {
     used: number;
@@ -56,4 +56,4 @@ export interface GameAIState {
       createdAt: string;
     }[];
   };
-}
+}*/
