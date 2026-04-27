@@ -55,6 +55,9 @@ model Game {
   currentRoomId Int?
   currentRoom   Room?          @relation(fields: [currentRoomId], references: [id])
 
+  // Opció per desactivar l'assistent a la partida
+  aiEnabled Boolean @default(true)
+
   // ESTAT DEL JOC (temps, score, pistes, etc.)
   state     Json
   createdAt DateTime @default(now())
@@ -72,6 +75,9 @@ model Room {
   image       String? // imatge de la sala (frontend)
   order       Int     @unique // progressió del joc (1,2,3...)
   isInitial   Boolean @default(false)
+
+  // Frases idle que mostra l'assistent ABYSS AI quan el jugador no interacciona
+  idlePhrases String[] @default([])
 
   puzzle  Puzzle?
   objects InteractiveObject[]

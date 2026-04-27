@@ -8,6 +8,7 @@ export const GAME_CONSTANTS = {
 
   // Pistes
   MAX_HINTS: 3,
+  MAX_AI_HINTS: 2, // límit de pistes via IA
 
   // Puntuació
   SCORE_CORRECT_ANSWER: 200,
