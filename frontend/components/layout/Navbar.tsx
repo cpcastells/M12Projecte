@@ -62,6 +62,7 @@ export default function Navbar() {
 
     routesToRender.push(
       { label: "Instruccions", href: PATHS.INSTRUCCIONS },
+      { label: "Rànquing", href: "/ranking" },
       { label: "Perfil", href: PATHS.PROFILE },
       {
         label: "Logout",
