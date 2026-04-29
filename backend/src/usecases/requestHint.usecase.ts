@@ -53,7 +53,7 @@ export async function requestHintUseCase(userId: number, gameId: number) {
       ),
     };
 
-    await gameActionRepository.updateState(gameId, newState);
+    await gameActionRepository.updateState(gameId, newState, newState.score);
 
     return {
       status: 200,

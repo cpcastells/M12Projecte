@@ -116,10 +116,11 @@ export const gameActionRepository = {
     gameId: number,
     nextRoomId: number,
     state: Prisma.InputJsonValue,
+    score: number,
   ) {
     return prisma.game.update({
       where: { id: gameId },
-      data: { currentRoomId: nextRoomId, state },
+      data: { currentRoomId: nextRoomId, state, score },
       include: { currentRoom: { include: roomIncludeForResponse } },
     });
   },
@@ -127,7 +128,7 @@ export const gameActionRepository = {
   /**
    * Marca la partida com a completada.
    */
-  completeGame(gameId: number, state: Prisma.InputJsonValue) {
+  completeGame(gameId: number, state: Prisma.InputJsonValue, score: number) {
     return prisma.game.update({
       where: { id: gameId },
       data: {
@@ -135,6 +136,7 @@ export const gameActionRepository = {
         endReason: GameEndReason.success,
         currentRoomId: null,
         state,
+        score,
       },
     });
   },
@@ -172,10 +174,13 @@ export const gameActionRepository = {
   /**
    * Actualitza l'estat del joc.
    */
-  updateState(gameId: number, state: Prisma.InputJsonValue) {
+  updateState(gameId: number, state: Prisma.InputJsonValue, score?: number) {
     return prisma.game.update({
       where: { id: gameId },
-      data: { state: state as unknown as Prisma.InputJsonValue },
+      data: {
+        state: state as unknown as Prisma.InputJsonValue,
+        ...(score !== undefined ? { score } : {}),
+      },
     });
   },
 

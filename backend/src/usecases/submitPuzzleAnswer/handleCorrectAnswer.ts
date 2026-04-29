@@ -22,6 +22,7 @@ export async function handleCorrectAnswer(
     const updatedGame = await gameActionRepository.completeGame(
       gameId,
       newState,
+      newState.score,
     );
 
     return {
@@ -46,6 +47,7 @@ export async function handleCorrectAnswer(
     gameId,
     nextRoom.id,
     advanceState,
+    advanceState.score,
   );
 
   return {
