@@ -34,8 +34,10 @@ export const ENDPOINTS = {
 
   /** Endpoints d'administració  */
   admin: {
-    /** GET — Llista tots els usuaris */
+    /** GET — Llista tots els usuaris (amb _count games) */
     users: `${BASE_URL}/admin/users`,
+    /** GET — Estadístiques detallades d'un jugador */
+    userStats: (id: number) => `${BASE_URL}/admin/users/${id}/stats`,
     /** PATCH — Canvia el rol d'un usuari */
     userRole: (id: number) => `${BASE_URL}/admin/users/${id}/role`,
     /** DELETE — Elimina un usuari */
