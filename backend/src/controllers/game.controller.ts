@@ -7,6 +7,7 @@ import { getMyActiveGameUseCase } from "../usecases/getMyActiveGame.usecase";
 import { getMyLastGameUseCase } from "../usecases/getMyLastGame.usecase";
 import { registerObjectInteractionUseCase } from "../usecases/registerObjectInteraction.usecase";
 import { patchGameUseCase } from "../usecases/patchGame.usecase";
+import { askAssistantUseCase } from "../usecases/askAssistant.usecase";
 
 /**
  * Inicia (o recupera) la partida de l'usuari autenticat.
@@ -138,9 +139,19 @@ export async function patchGame(req: Request, res: Response) {
   return res.status(result.status).json(result.body);
 }
 
+/**
+ * POST /game/:id/ask-assistant
+ *
+ * Consulta l'assistent ABYSS AI. El robot rep context de la sala i el puzzle
+ * al backend i retorna una pista sense revelar la solució. La lògica (límit
+ * global, penalització, validació de aiEnabled, sincronització de score) viu
+ * al askAssistantUseCase.
+ */
 export const askAssistant = async (req: Request, res: Response) => {
-  // TODO: Implementar crida a l'assistent ABYSS AI
-  // Per ara retornem un missatge placeholder
+  const userId = Number(req.user!.id);
+  const gameId = Number(req.params.id);
+  const { question } = req.body;
 
-  return res.status(200).json({ message: "Assistent consultat" });
+  const result = await askAssistantUseCase(userId, gameId, question);
+  return res.status(result.status).json(result.body);
 };

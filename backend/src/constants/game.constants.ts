@@ -8,7 +8,7 @@ export const GAME_CONSTANTS = {
 
   // Pistes
   MAX_HINTS: 3,
-  MAX_AI_HINTS: 2, // límit de pistes via IA
+  MAX_AI_HINTS: 6,
 
   // Intents per resoldre l'enigma de la sala
   MAX_ATTEMPTS: 3,
