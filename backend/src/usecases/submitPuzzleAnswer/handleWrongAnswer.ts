@@ -31,7 +31,7 @@ export async function handleWrongAnswer(
     };
   }
 
-  await gameActionRepository.updateState(gameId, newState);
+  await gameActionRepository.updateState(gameId, newState, newState.score);
 
   return {
     correct: false,

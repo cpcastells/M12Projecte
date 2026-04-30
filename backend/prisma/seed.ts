@@ -8,6 +8,7 @@ type SeedRoom = {
   image?: string | null;
   order: number;
   isInitial: boolean;
+  idlePhrases: string[];
   puzzle: {
     title: string;
     statement: string;
@@ -37,6 +38,28 @@ const ROOMS: SeedRoom[] = [
     image: "/img/rooms/sistema-central.webp",
     order: 1,
     isInitial: true,
+    idlePhrases: [
+      "Monitorització activa. Ajuda no contemplada.",
+      "El sistema confirma: ets prescindible.",
+      "Procés òptim. Resultat incert.",
+      "Les estadístiques no juguen al teu favor.",
+      "Protocols complets. Empatia no instal·lada.",
+      "El sistema funciona correctament. La situació no.",
+      "Els errors humans són estadísticament previsibles.",
+      "S’han detectat decisions qüestionables.",
+      "El control central no sent pressa.",
+      "Simulació estable. Usuari en risc.",
+      "Accés detectat. Motivació desconeguda.",
+      "El sistema observa, però no intervé.",
+      "Estat estable. Per ara.",
+      "Les decisions tenen conseqüències mesurables.",
+      "Les dades no menteixen. Les interpretacions sí.",
+      "No totes les ordres són recomanables.",
+      "El control és una il·lusió necessària.",
+      "El sistema no oblida.",
+      "Accions repetides incrementen el marge d’error.",
+      "Cap decisió és realment neutra.",
+    ],
     puzzle: {
       title: "Enigma Principal: Activació del Sistema Central",
       statement:
@@ -100,6 +123,28 @@ const ROOMS: SeedRoom[] = [
     image: "/img/rooms/laboratori.webp",
     order: 2,
     isInitial: false,
+    idlePhrases: [
+      "Resultat inconclús. Com gairebé sempre.",
+      "Les mostres no han sobreviscut. Documentació completada.",
+      "L’experiment ha fallat amb èxit.",
+      "La recerca requereix sacrificis. Preferiblement teus.",
+      "Error detectat. Solució no garantida.",
+      "Alguns resultats no es poden desfer.",
+      "La teoria era correcta. La pràctica no tant.",
+      "Les dades indiquen optimisme irresponsable.",
+      "Protocols seguits. Conseqüències inevitables.",
+      "El laboratori no formula disculpes.",
+      "Hipòtesi descartada. De moment.",
+      "L’error forma part del procés.",
+      "No tots els experiments acaben bé.",
+      "Resultats parcials poden ser enganyosos.",
+      "La ciència no promet respostes ràpides.",
+      "Substància analitzada. Risc no quantificat.",
+      "Més dades no sempre signifiquen més claredat.",
+      "Error humà possible. Sistema no exempt.",
+      "El laboratori aprèn dels seus errors.",
+      "La recerca continua, amb o sense tu.",
+    ],
     puzzle: {
       title: "Anàlisi de mostres",
       statement:
@@ -161,6 +206,28 @@ const ROOMS: SeedRoom[] = [
     image: "/img/rooms/sortida.webp",
     order: 3,
     isInitial: false,
+    idlePhrases: [
+      "Evacuació disponible. Resultat no garantit.",
+      "Aquesta és l’opció recomanada. Les altres són pitjors.",
+      "Sortida confirmada. Esperem que sigui la correcta.",
+      "El temps restant és insuficient. Com sempre.",
+      "Algunes decisions arriben massa tard per ser bones.",
+      "El protocol d’evacuació no inclou tranquil·litat.",
+      "Si has arribat fins aquí, estadísticament ja has guanyat alguna cosa.",
+      "L’èxit encara és possible. Poc probable, però possible.",
+      "El sistema ha calculat múltiples finals. Cap ideal.",
+      "Evacuar no implica necessàriament sobreviure.",
+      "Última seqüència activa. No recomanem dubtar ara.",
+      "El sistema no pot assegurar un final satisfactori.",
+      "Aquesta acció serà recordada. Si algú la revisa.",
+      "El mòdul d’evacuació funciona. La resta és incertesa.",
+      "Has pres moltes decisions fins aquí. Aquesta també compta.",
+      "El temps s’està acabant. El sistema no sent pressa.",
+      "Si el pla falla, el protocol s’actualitzarà… massa tard.",
+      "El sistema et desitja sort. No en pot oferir més.",
+      "Aquest és el final del procés. No necessàriament del problema.",
+      "Transmissió finalitzada. Bona sort… la necessitaràs.",
+    ],
     puzzle: {
       title: "Desbloqueig final",
       statement: "Introdueix la paraula clau per obrir la porta de sortida.",
@@ -275,6 +342,7 @@ async function main() {
         image: r.image ?? null,
         order: r.order,
         isInitial: r.isInitial,
+        idlePhrases: r.idlePhrases,
       },
       create: {
         code: r.code,
@@ -283,6 +351,7 @@ async function main() {
         image: r.image ?? null,
         order: r.order,
         isInitial: r.isInitial,
+        idlePhrases: r.idlePhrases,
       },
     });
 

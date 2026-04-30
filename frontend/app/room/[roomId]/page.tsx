@@ -9,11 +9,15 @@ import TimeExpiredGuard from "@/components/room/TimeExpiredGuard/TimeExpiredGuar
 import { GameProvider } from "@/context/GameContext";
 import useRoom from "@/hooks/useRoom";
 import type { InteractiveObject } from "@/types/game";
+import useAmbientSound from "@/hooks/useAmbientSound";
 
 export default function RoomPage() {
   const { room, objects, gameId, gameState, isLoading } = useRoom();
   const [selectedObject, setSelectedObject] =
     useState<InteractiveObject | null>(null);
+
+  //Introducció so ambient
+  useAmbientSound();
 
   if (isLoading) {
     return (

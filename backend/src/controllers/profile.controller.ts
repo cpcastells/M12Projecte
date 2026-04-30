@@ -17,13 +17,9 @@ import { prisma } from "../db/prisma";
  */
 export async function getMyProfile(req: Request, res: Response) {
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: "Usuari no autenticat" });
-    }
-
-    // Dades bàsiques
-    const userId = Number(req.user.id);
-    const { username, email } = req.user;
+    // Ruta protegida pel middleware authenticate. Dades bàsiques
+    const userId = Number(req.user!.id);
+    const { username, email } = req.user!;
 
     // recuperem state de la partida per poder calcular els stats
     const games = await prisma.game.findMany({
