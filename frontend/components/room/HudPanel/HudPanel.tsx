@@ -25,7 +25,7 @@ const HudPanel = ({ room, selectedObject, gameId }: HudPanelProps) => {
       </div>
 
       {/* Timer */}
-      <TimerDisplay />
+      <TimerDisplay gameId={gameId} />
 
       {/* Sistemes de l'estació (ambientació) */}
       <div className="border-t border-cyan-700/30 pt-2">

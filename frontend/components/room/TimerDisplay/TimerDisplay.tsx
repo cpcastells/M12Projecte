@@ -1,7 +1,7 @@
 import useGameTimer from "@/hooks/useGameTimer";
 
-const TimerDisplay = () => {
-  const { formattedTime, timeRemaining, isExpired } = useGameTimer();
+const TimerDisplay = ({ gameId }: { gameId: number }) => {
+  const { formattedTime, timeRemaining, isExpired } = useGameTimer(gameId);
 
   // Determine the color class based on the time remaining
   const isWarning = timeRemaining < 300; // < 5 min
