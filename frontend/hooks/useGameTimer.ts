@@ -41,6 +41,7 @@ const useGameTimer = (gameId?: number) => {
     socket.on("timer:ended", handleEnded);
 
     return () => {
+      socket.emit("timer:leave", { gameId });
       socket.off("connect", handleConnect);
       socket.off("timer:update", handleUpdate);
       socket.off("timer:ended", handleEnded);

@@ -2,18 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import useAbandonGame from "@/hooks/useAbandonGame";
 import useGameTimer from "@/hooks/useGameTimer";
 import { PATHS } from "@/constants/paths";
 import { AudioManager } from "@/utils/AudioManager";
 
 /**
  * Quan el timer expira:
- * - marca la partida com abandonada al backend (PATCH via useAbandonGame);
- * - mostra un overlay d'alarma amb compte enrere (5→1) perquè el jugador
- *   pugui llegir el missatge i preparar-se per a la redirecció;
- * - al final del compte enrere, força el redirect a /game-over
- *   (fallback si el PATCH encara no ha resolt la cache).
+ * - el backend ja marca la partida com finalitzada amb endReason timeExpired;
+ * - mostra un overlay d'alarma amb compte enrere (5→1);
+ * - al final del compte enrere, força el redirect a /game-over.
  */
 type TimeExpiredGuardProps = {
   gameId: number;
@@ -22,8 +19,7 @@ type TimeExpiredGuardProps = {
 const COUNTDOWN_FROM_SECONDS = 5;
 
 const TimeExpiredGuard = ({ gameId }: TimeExpiredGuardProps) => {
-  const { isExpired } = useGameTimer();
-  const abandon = useAbandonGame();
+  const { isExpired } = useGameTimer(gameId);
   const router = useRouter();
   const triggeredRef = useRef(false);
   const [secondsLeft, setSecondsLeft] = useState(COUNTDOWN_FROM_SECONDS);
@@ -31,9 +27,8 @@ const TimeExpiredGuard = ({ gameId }: TimeExpiredGuardProps) => {
   useEffect(() => {
     if (!isExpired || triggeredRef.current) return;
     triggeredRef.current = true;
-    abandon.mutate({ gameId });
     AudioManager.play("alarm");
-  }, [isExpired, gameId, abandon]);
+  }, [isExpired]);
 
   useEffect(() => {
     if (!isExpired || secondsLeft <= 0) return;

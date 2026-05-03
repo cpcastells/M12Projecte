@@ -8,6 +8,21 @@ export function registerGameTimerSocket(io: Server) {
   io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
 
+    let currentInterval: ReturnType<typeof setInterval> | null = null;
+    let currentGameId: number | null = null;
+    let currentTimeRemainingSeconds: number | null = null;
+
+    const clearCurrentTimer = async () => {
+      if (currentInterval) {
+        clearInterval(currentInterval);
+        currentInterval = null;
+      }
+
+      if (currentGameId && currentTimeRemainingSeconds !== null) {
+        await persistGameTimer(currentGameId, currentTimeRemainingSeconds);
+      }
+    };
+
     socket.on("timer:join", async ({ gameId }) => {
       try {
         const numericGameId = Number(gameId);
@@ -17,57 +32,56 @@ export function registerGameTimerSocket(io: Server) {
           return;
         }
 
+        await clearCurrentTimer();
+
+        currentGameId = numericGameId;
+
         socket.join(`game:${numericGameId}`);
 
-        // 🔹 SOLO UNA VEZ: leer BD
         const timer = await getUpdatedGameTimer(numericGameId);
 
-        let timeRemainingSeconds = timer.timeRemainingSeconds;
+        currentTimeRemainingSeconds = timer.timeRemainingSeconds;
         let lastPersistedAt = Date.now();
 
-        // Enviamos primer valor
         socket.emit("timer:update", {
           gameId: numericGameId,
-          timeRemainingSeconds,
+          timeRemainingSeconds: currentTimeRemainingSeconds,
         });
 
-        const interval = setInterval(async () => {
-          // 🔹 cálculo en memoria (NO BD)
-          timeRemainingSeconds = Math.max(0, timeRemainingSeconds - 1);
+        currentInterval = setInterval(async () => {
+          if (currentTimeRemainingSeconds === null) return;
+
+          currentTimeRemainingSeconds = Math.max(
+            0,
+            currentTimeRemainingSeconds - 1,
+          );
 
           io.to(`game:${numericGameId}`).emit("timer:update", {
             gameId: numericGameId,
-            timeRemainingSeconds,
+            timeRemainingSeconds: currentTimeRemainingSeconds,
           });
 
-          // 🔹 guardar cada 15s o al terminar
           const shouldPersist =
-            Date.now() - lastPersistedAt >= 15000 || timeRemainingSeconds === 0;
+            Date.now() - lastPersistedAt >= 15000 ||
+            currentTimeRemainingSeconds === 0;
 
           if (shouldPersist) {
-            await persistGameTimer(numericGameId, timeRemainingSeconds);
+            await persistGameTimer(numericGameId, currentTimeRemainingSeconds);
             lastPersistedAt = Date.now();
           }
 
-          // 🔹 finalizar
-          if (timeRemainingSeconds === 0) {
+          if (currentTimeRemainingSeconds === 0) {
             io.to(`game:${numericGameId}`).emit("timer:ended", {
               gameId: numericGameId,
               reason: "timeExpired",
             });
 
-            clearInterval(interval);
+            if (currentInterval) {
+              clearInterval(currentInterval);
+              currentInterval = null;
+            }
           }
         }, 1000);
-
-        socket.on("disconnect", async () => {
-          clearInterval(interval);
-
-          // 🔹 guardar estado al salir
-          await persistGameTimer(numericGameId, timeRemainingSeconds);
-
-          console.log("Client disconnected:", socket.id);
-        });
       } catch (error) {
         console.error("Timer socket error:", error);
 
@@ -75,6 +89,27 @@ export function registerGameTimerSocket(io: Server) {
           message: "Could not load timer",
         });
       }
+    });
+
+    socket.on("timer:leave", async ({ gameId }) => {
+      const numericGameId = Number(gameId);
+
+      if (!numericGameId) return;
+
+      socket.leave(`game:${numericGameId}`);
+
+      if (currentGameId === numericGameId) {
+        await clearCurrentTimer();
+        currentGameId = null;
+        currentTimeRemainingSeconds = null;
+      }
+
+      console.log(`Client left game ${numericGameId}`);
+    });
+
+    socket.on("disconnect", async () => {
+      await clearCurrentTimer();
+      console.log("Client disconnected:", socket.id);
     });
   });
 }
