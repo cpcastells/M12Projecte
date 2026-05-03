@@ -1,10 +1,14 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import http from "http";
+import { Server } from "socket.io";
+
 import authRouter from "./routes/auth.routes";
 import gameRouter from "./routes/game.routes";
 import profileRoutes from "./routes/profile.routes";
 import adminRoutes from "./routes/admin.routes";
+import { registerGameTimerSocket } from "./sockets/gameTimer.socket";
 
 dotenv.config();
 
@@ -30,7 +34,16 @@ app.get("/health", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
+const httpServer = http.createServer(app);
 
-app.listen(PORT, () => {
+const io = new Server(httpServer, {
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+  },
+});
+
+registerGameTimerSocket(io);
+
+httpServer.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });

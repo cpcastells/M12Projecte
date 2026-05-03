@@ -1,37 +1,64 @@
-import { useEffect, useRef } from "react";
+"use client";
+
+import { useEffect } from "react";
 import { useGameContext } from "@/context/GameContext";
+import { socket } from "@/services/socket";
 
 /**
- * Decrementa el timer 1s cada segon client-side. S'atura a 0. El valor es
- * persisteix periòdicament via auto-save del GameProvider.
+ * Timer controlado por backend via Socket.IO.
+ * Si el socket se reconecta, vuelve a unirse automáticamente a la partida.
  */
-const useGameTimer = () => {
+const useGameTimer = (gameId?: number) => {
   const { timeRemainingSeconds, setTimeRemaining } = useGameContext();
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const timeRef = useRef(timeRemainingSeconds);
 
   useEffect(() => {
-    timeRef.current = timeRemainingSeconds;
-  }, [timeRemainingSeconds]);
+    if (!gameId) return;
 
-  useEffect(() => {
-    if (timeRef.current <= 0) return;
+    const joinTimerRoom = () => {
+      socket.emit("timer:join", { gameId });
+    };
 
-    intervalRef.current = setInterval(() => {
-      setTimeRemaining(timeRef.current - 1);
-    }, 1000);
+    if (!socket.connected) {
+      socket.connect();
+    } else {
+      joinTimerRoom();
+    }
+
+    const handleConnect = () => {
+      joinTimerRoom();
+    };
+
+    const handleUpdate = (data: { timeRemainingSeconds: number }) => {
+      setTimeRemaining(data.timeRemainingSeconds);
+    };
+
+    const handleEnded = () => {
+      setTimeRemaining(0);
+    };
+
+    socket.on("connect", handleConnect);
+    socket.on("timer:update", handleUpdate);
+    socket.on("timer:ended", handleEnded);
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      socket.off("connect", handleConnect);
+      socket.off("timer:update", handleUpdate);
+      socket.off("timer:ended", handleEnded);
     };
-  }, [setTimeRemaining]);
+  }, [gameId, setTimeRemaining]);
 
   const isExpired = timeRemainingSeconds <= 0;
+
   const minutes = Math.floor(timeRemainingSeconds / 60);
   const seconds = timeRemainingSeconds % 60;
+
   const formattedTime = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 
-  return { timeRemaining: timeRemainingSeconds, formattedTime, isExpired };
+  return {
+    timeRemaining: timeRemainingSeconds,
+    formattedTime,
+    isExpired,
+  };
 };
 
 export default useGameTimer;
