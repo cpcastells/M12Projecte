@@ -7,6 +7,7 @@ import type {
   UseHintResponse,
   UpdateGameStateResponse,
   GameState,
+  AskAssistantResponse,
 } from "@/types/game";
 
 export function startGame(): Promise<StartGameResponse> {
@@ -58,4 +59,15 @@ export function abandonGame(gameId: number): Promise<GameResponse> {
   return authRequest<GameResponse>(ENDPOINTS.game.patch(gameId), "PATCH", {
     status: "ended",
   });
+}
+
+export function askAssistant(
+  gameId: number,
+  question: string,
+): Promise<AskAssistantResponse> {
+  return authRequest<AskAssistantResponse>(
+    ENDPOINTS.game.askAssistant(gameId),
+    "POST",
+    { question },
+  );
 }
