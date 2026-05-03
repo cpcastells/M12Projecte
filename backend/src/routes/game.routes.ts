@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/authenticate";
+import { getRanking } from "../controllers/ranking.controller";
 import {
   getMyActiveGame,
   getMyLastGame,
@@ -50,5 +51,8 @@ router.get("/me/active", authenticate, getMyActiveGame);
 
 // Última partida
 router.get("/me/last", authenticate, getMyLastGame);
+
+//ranking
+router.get("/ranking", authenticate, getRanking);
 
 export default router;

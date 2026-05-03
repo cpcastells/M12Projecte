@@ -7,6 +7,7 @@ import { getMyActiveGameUseCase } from "../usecases/getMyActiveGame.usecase";
 import { getMyLastGameUseCase } from "../usecases/getMyLastGame.usecase";
 import { registerObjectInteractionUseCase } from "../usecases/registerObjectInteraction.usecase";
 import { patchGameUseCase } from "../usecases/patchGame.usecase";
+import { askAssistantUseCase } from "../usecases/askAssistant.usecase";
 
 /**
  * Inicia (o recupera) la partida de l'usuari autenticat.
@@ -20,13 +21,9 @@ import { patchGameUseCase } from "../usecases/patchGame.usecase";
  * La lògica de creació/recuperació de la partida està encapsulada al startGameUseCase.
  */
 export async function startGame(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({ message: "Usuari no autenticat" });
-  }
+  const userId = Number(req.user!.id);
 
-  const userId = Number(req.user.id);
   const result = await startGameUseCase(userId);
-
   return res.status(result.status).json(result.body);
 }
 
@@ -43,11 +40,7 @@ export async function startGame(req: Request, res: Response) {
  *- La validació i persistència es realitza al saveGameProgressUseCase.
  */
 export async function saveGameProgress(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({ message: "Usuari no autenticat" });
-  }
-
-  const userId = Number(req.user.id);
+  const userId = Number(req.user!.id);
   const { gameId, state } = req.body;
 
   const result = await saveGameProgressUseCase(userId, gameId, state);
@@ -57,35 +50,25 @@ export async function saveGameProgress(req: Request, res: Response) {
 /**
  * Retorna la partida activa de l'usuari autenticat.
  *
- * - Requereix passar pel middleware authenticate (req.user definit).
+ * - Ruta protegida pel middleware authenticate.
  * - La lògica de recuperació i validació de l'estat de la partida
  *   es delega al getMyActiveGameUseCase.
  */
 export async function getMyActiveGame(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({ message: "Usuari no autenticat" });
-  }
-
-  const result = await getMyActiveGameUseCase(req.user.id);
-
+  const result = await getMyActiveGameUseCase(req.user!.id);
   return res.status(result.status).json(result.body);
 }
 
 /**
  * Retorna l'última partida (sigui active o no).
  *
- * - Requereix autenticació.
+ * - Ruta protegida pel middleware authenticate.
  * - La lògica de recuperació de la partida es gestiona al getMyLastGameUseCase.
  */
 export async function getMyLastGame(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({ message: "Usuari no autenticat" });
-  }
-
-  const userId = Number(req.user.id);
+  const userId = Number(req.user!.id);
 
   const result = await getMyLastGameUseCase(userId);
-
   return res.status(result.status).json(result.body);
 }
 /**
@@ -96,11 +79,7 @@ export async function getMyLastGame(req: Request, res: Response) {
  * es gestiona al submitPuzzleAnswerUseCase
  */
 export async function submitPuzzleAnswer(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({ message: "Usuari no autenticat" });
-  }
-
-  const userId = Number(req.user.id);
+  const userId = Number(req.user!.id);
   const gameId = Number(req.params.id);
   const { answer } = req.body;
 
@@ -116,15 +95,10 @@ export async function submitPuzzleAnswer(req: Request, res: Response) {
  * es gestionen al requestHintUseCase.
  */
 export async function requestHint(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({ message: "Usuari no autenticat" });
-  }
-
-  const userId = Number(req.user.id);
+  const userId = Number(req.user!.id);
   const gameId = Number(req.params.id);
 
   const result = await requestHintUseCase(userId, gameId);
-
   return res.status(result.status).json(result.body);
 }
 /**
@@ -137,11 +111,7 @@ export async function requestHint(req: Request, res: Response) {
  * - used: l'usuari utilitza un objecte
  */
 export async function registerObjectInteraction(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({ message: "Usuari no autenticat" });
-  }
-
-  const userId = Number(req.user.id);
+  const userId = Number(req.user!.id);
   const gameId = Number(req.params.id);
   const { objectId, interaction } = req.body;
 
@@ -151,7 +121,6 @@ export async function registerObjectInteraction(req: Request, res: Response) {
     Number(objectId),
     interaction,
   );
-
   return res.status(result.status).json(result.body);
 }
 
@@ -163,20 +132,26 @@ export async function registerObjectInteraction(req: Request, res: Response) {
  * La lògica de whitelist i validació viu al patchGameUseCase.
  */
 export async function patchGame(req: Request, res: Response) {
-  if (!req.user) {
-    return res.status(401).json({ message: "Usuari no autenticat" });
-  }
-
-  const userId = Number(req.user.id);
+  const userId = Number(req.user!.id);
   const gameId = Number(req.params.id);
-  const result = await patchGameUseCase(userId, gameId, req.body);
 
+  const result = await patchGameUseCase(userId, gameId, req.body);
   return res.status(result.status).json(result.body);
 }
 
+/**
+ * POST /game/:id/ask-assistant
+ *
+ * Consulta l'assistent ABYSS AI. El robot rep context de la sala i el puzzle
+ * al backend i retorna una pista sense revelar la solució. La lògica (límit
+ * global, penalització, validació de aiEnabled, sincronització de score) viu
+ * al askAssistantUseCase.
+ */
 export const askAssistant = async (req: Request, res: Response) => {
-  // TODO: Implementar crida a l'assistent ABYSS AI
-  // Per ara retornem un missatge placeholder
+  const userId = Number(req.user!.id);
+  const gameId = Number(req.params.id);
+  const { question } = req.body;
 
-  return res.status(200).json({ message: "Assistent consultat" });
+  const result = await askAssistantUseCase(userId, gameId, question);
+  return res.status(result.status).json(result.body);
 };

@@ -6,12 +6,9 @@ import {
 
 export async function getMyProfile(req: Request, res: Response) {
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: "Usuari no autenticat" });
-    }
-
-    const userId = Number(req.user.id);
-    const { username, email } = req.user;
+    // Ruta protegida pel middleware authenticate. Dades bàsiques
+    const userId = Number(req.user!.id);
+    const { username, email } = req.user!;
 
     const stats = await getUserStatsUseCase(userId);
     const rank = deriveRank(stats.completionRate);
