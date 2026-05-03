@@ -1,28 +1,35 @@
-import { prisma } from "../db/prisma";
-import { GameStatus, GameEndReason } from "@prisma/client";
+import { prisma } from "../prisma/client";
+import { GameStatus } from "@prisma/client";
 
 export const rankingRepository = {
-  getTopRanking(limit = 10) {
-    return prisma.game.findMany({
+  getTopUsersByCompletedGames(limit: number) {
+    return prisma.user.findMany({
       where: {
-        status: GameStatus.completed,
-        endReason: GameEndReason.success, // solo partidas ganadas
-      },
-      orderBy: [
-        { score: "desc" }, // mayor score primero
-        { updatedAt: "asc" }, // desempate (antes termina, mejor)
-      ],
-      take: limit,
-      select: {
-        id: true,
-        score: true,
-        updatedAt: true,
-        user: {
-          select: {
-            username: true,
+        games: {
+          some: {
+            status: GameStatus.completed,
           },
         },
       },
+      select: {
+        id: true,
+        username: true,
+        _count: {
+          select: {
+            games: {
+              where: {
+                status: GameStatus.completed,
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        games: {
+          _count: "desc",
+        },
+      },
+      take: limit,
     });
   },
 };

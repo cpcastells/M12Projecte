@@ -20,15 +20,22 @@ function RankingPage() {
       try {
         const apiUrl =
           process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+        const token = localStorage.getItem("token");
 
-        const res = await fetch(`${apiUrl}/game/ranking`);
+        const res = await fetch(`${apiUrl}/game/ranking`, {
+          headers: token
+            ? {
+                Authorization: `Bearer ${token}`,
+              }
+            : {},
+        });
 
         if (!res.ok) {
           throw new Error("Error carregant el rànquing");
         }
 
         const data = await res.json();
-        setRanking(data);
+        setRanking(data.ranking ?? data);
       } catch (error) {
         console.error("Error loading ranking:", error);
         setErrorMessage("No s'ha pogut carregar el rànquing.");
