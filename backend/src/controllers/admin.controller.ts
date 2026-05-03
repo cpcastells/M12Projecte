@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
 import { prisma } from "../db/prisma";
 import { ROLES, type Role } from "../constants/roles";
+import { getUserStatsUseCase } from "../usecases/getUserStats.usecase";
 
 // GET /admin/users
 export async function adminListUsers(req: Request, res: Response) {
@@ -42,103 +43,9 @@ export async function adminGetUserStats(req: Request, res: Response) {
       return res.status(404).json({ message: "Usuari no trobat" });
     }
 
-    const games = await prisma.game.findMany({
-      where: { userId: id },
-      select: {
-        id: true,
-        status: true,
-        endReason: true,
-        state: true,
-        createdAt: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
+    const stats = await getUserStatsUseCase(id);
 
-    const gamesPlayed = games.length;
-
-    const gamesCompleted = games.filter(
-      (g) => g.endReason === "success",
-    ).length;
-    const gamesAbandoned = games.filter(
-      (g) => g.endReason === "abandoned",
-    ).length;
-    const gamesTimeExpired = games.filter(
-      (g) => g.endReason === "timeExpired",
-    ).length;
-    const gamesActive = games.filter((g) => g.status === "active").length;
-
-    const TOTAL_TIME_SECONDS = 60 * 60;
-
-    let totalScore = 0;
-    let maxScore = 0;
-    let totalHintsUsed = 0;
-    let totalTimeUsedSeconds = 0;
-    let gamesWithState = 0;
-
-    for (const game of games) {
-      const state = game.state as Record<string, unknown> | null;
-      if (!state) continue;
-
-      gamesWithState++;
-
-      const score = typeof state.score === "number" ? state.score : 0;
-      const hints = typeof state.hintsUsed === "number" ? state.hintsUsed : 0;
-
-      const timeRemaining =
-        typeof state.timeRemainingSeconds === "number"
-          ? state.timeRemainingSeconds
-          : TOTAL_TIME_SECONDS;
-
-      totalScore += score;
-      if (score > maxScore) maxScore = score;
-
-      totalHintsUsed += hints;
-      totalTimeUsedSeconds += TOTAL_TIME_SECONDS - timeRemaining;
-    }
-
-    const avgScore =
-      gamesWithState > 0 ? Math.round(totalScore / gamesWithState) : 0;
-
-    const avgTimeUsedSeconds =
-      gamesWithState > 0
-        ? Math.round(totalTimeUsedSeconds / gamesWithState)
-        : 0;
-
-    const avgMinutes = Math.floor(avgTimeUsedSeconds / 60);
-    const avgSeconds = avgTimeUsedSeconds % 60;
-
-    const avgTimeFormatted = `${String(avgMinutes).padStart(2, "0")}:${String(
-      avgSeconds,
-    ).padStart(2, "0")}`;
-
-    const completionRate =
-      gamesPlayed === 0 ? 0 : Math.round((gamesCompleted / gamesPlayed) * 100);
-
-    const recentGames = games.slice(0, 5).map((g) => ({
-      id: g.id,
-      status: g.status,
-      endReason: g.endReason,
-      createdAt: g.createdAt,
-      score: (g.state as any)?.score ?? 0,
-      hintsUsed: (g.state as any)?.hintsUsed ?? 0,
-    }));
-
-    return res.status(200).json({
-      user,
-      stats: {
-        gamesPlayed,
-        gamesCompleted,
-        gamesAbandoned,
-        gamesTimeExpired,
-        gamesActive,
-        completionRate,
-        totalHintsUsed,
-        avgScore,
-        maxScore,
-        avgTimeFormatted,
-        recentGames,
-      },
-    });
+    return res.status(200).json({ user, stats });
   } catch (e) {
     console.error("ADMIN_USER_STATS ERROR →", e);
     return res.status(500).json({ message: "Error obtenint estadístiques" });

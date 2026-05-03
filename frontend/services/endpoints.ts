@@ -14,6 +14,12 @@ export const ENDPOINTS = {
     register: `${BASE_URL}/auth/register`,
   },
 
+  /** Endpoints de perfil */
+  profile: {
+    /** GET — Perfil + estadístiques agregades de l'usuari autenticat */
+    me: `${BASE_URL}/profile/me`,
+  },
+
   /** Endpoints del joc */
   game: {
     /** POST — Inicia o recupera la partida de l'usuari */

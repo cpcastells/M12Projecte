@@ -48,6 +48,25 @@ export const gameActionRepository = {
   },
 
   /**
+   * Retorna totes les partides d'un usuari amb els camps necessaris per
+   * calcular estadístiques agregades, ordenades per data descendent.
+   * Utilitzada per getUserStats.
+   */
+  findAllByUserForStats(userId: number) {
+    return prisma.game.findMany({
+      where: { userId },
+      select: {
+        id: true,
+        status: true,
+        endReason: true,
+        state: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  },
+
+  /**
    * Retorna una partida activa concreta per id + userId.
    * Utilitzada per registrar interaccions o altres accions puntuals.
    */

@@ -2,88 +2,112 @@
 import Navbar from "@/components/layout/Navbar";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { User, DEFAULT_USER } from "@/constants/copy/profile";
 import { PATHS } from "@/constants/paths";
 import { useAuth } from "@/context/AuthContext";
 import useActiveGame from "@/hooks/useActiveGame";
+import useMyProfile from "@/hooks/useMyProfile";
+import type { RecentGame } from "@/types/admin.types";
 
 const formatRoomUrl = (order: number): string => String(order).padStart(2, "0");
+
+const formatTime = (iso: string | Date): string => {
+  const d = typeof iso === "string" ? new Date(iso) : iso;
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+};
+
+const describeGame = (g: RecentGame): string => {
+  if (g.status === "active") return "Partida en curs";
+  switch (g.endReason) {
+    case "success":
+      return "✓ Missió completada";
+    case "timeExpired":
+      return "✗ Temps esgotat";
+    case "attemptsExceeded":
+      return "✗ Intents exhaurits";
+    case "abandoned":
+      return "Partida abandonada";
+    default:
+      return "Partida finalitzada";
+  }
+};
 
 export default function ProfilePage() {
   const router = useRouter();
   const { logout, user: authUser } = useAuth();
   const { data: activeGameData } = useActiveGame();
+  const { data: profileData, isLoading } = useMyProfile();
+
   const activeGame =
     activeGameData?.game && activeGameData.game.status === "active"
       ? activeGameData.game
       : null;
-  const [user, setUser] = useState<User>({
-    ...DEFAULT_USER,
-    username: authUser?.username ?? DEFAULT_USER.username,
-    email: authUser?.email ?? DEFAULT_USER.email,
-  });
-  const [form, setForm] = useState<User>({
-    ...DEFAULT_USER,
-    username: authUser?.username ?? DEFAULT_USER.username,
-    email: authUser?.email ?? DEFAULT_USER.email,
-  });
+
+  const stats = profileData?.stats;
+  const profileUser = profileData?.user;
+
+  const username = profileUser?.username ?? authUser?.username ?? "";
+  const email = profileUser?.email ?? authUser?.email ?? "";
+  const rank = profileUser?.rank ?? "Recruit";
+
+  const [form, setForm] = useState({ username, email });
   const [editing, setEditing] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [currentRoom, setCurrentRoom] = useState<string | undefined>();
 
-  //Arxius estaticos
+  useEffect(() => {
+    setForm({ username, email });
+  }, [username, email]);
+
+  useEffect(() => {
+    if (!activeGame) return;
+    setCurrentRoom(String(activeGame.currentRoom.order));
+  }, [activeGame]);
+
   const achievements = [
-    { name: "Primer immersió", icon: "🌊", unlocked: true },
-    { name: "Observador", icon: "👁", unlocked: true },
-    { name: "Primera porta", icon: "🔓", unlocked: false },
+    {
+      name: "Primer immersió",
+      icon: "🌊",
+      unlocked: (stats?.gamesPlayed ?? 0) >= 1,
+    },
+    {
+      name: "Observador",
+      icon: "👁",
+      unlocked: (stats?.gamesPlayed ?? 0) >= 1,
+    },
+    {
+      name: "Primera porta",
+      icon: "🔓",
+      unlocked: (stats?.gamesCompleted ?? 0) >= 1,
+    },
     { name: "Velocista", icon: "🏃", unlocked: false },
-    { name: "Cara a cara", icon: "🤖", unlocked: false },
-    { name: "Apagada", icon: "⚡", unlocked: false },
-    { name: "Descoberta", icon: "🧬", unlocked: false },
-    { name: "Abyss", icon: "🌑", unlocked: false },
-  ];
-  // Registre de activitats estàtic per mostrar a la pàgina de perfil.
-  const gameLog = [
     {
-      time: "04:32",
-      text: "Accés a l'estació Hadal-7 iniciat. Connexió establerta.",
+      name: "Cara a cara",
+      icon: "🤖",
+      unlocked: (stats?.totalHintsUsed ?? 0) >= 1,
     },
     {
-      time: "04:35",
-      text: "Entrada a Sala 01 — Control Central. Enigma activat.",
+      name: "Apagada",
+      icon: "⚡",
+      unlocked: (stats?.gamesTimeExpired ?? 0) >= 1,
     },
-    {
-      time: "04:38",
-      text: "Inspeccionat Terminal A. Anomalia detectada al log d'error.",
-    },
-    {
-      time: "04:41",
-      text: "Inspeccionat Panel de Control. Nivell d'oxigen crític: 17%.",
-    },
-    { time: "04:44", text: "Intent de codi incorrecte. Intents restants: 3." },
+    { name: "Descoberta", icon: "🧬", unlocked: (stats?.maxScore ?? 0) >= 100 },
+    { name: "Abyss", icon: "🌑", unlocked: (stats?.gamesCompleted ?? 0) >= 3 },
   ];
 
-  //Manejor de formulari d'edició de perfil
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSave = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setUser({ ...user, username: form.username, email: form.email });
     setEditing(false);
     setSuccess(true);
     setTimeout(() => setSuccess(false), 2000);
   };
 
-  // Sincronitza dades de la partida activa a l'estat local de l'usuari
-  useEffect(() => {
-    if (!activeGame) return;
-    setUser((prev) => ({
-      ...prev,
-      currentRoom: String(activeGame.currentRoom.order),
-      status: "EN CURS",
-    }));
-  }, [activeGame]);
+  const display = (value: number | undefined, suffix = "") =>
+    isLoading || value === undefined ? "—" : `${value}${suffix}`;
+
   return (
     <main className="min-h-screen bg-[#010d16] text-cyan-50 font-mono flex flex-col">
       <Navbar />
@@ -143,7 +167,7 @@ export default function ProfilePage() {
                       type="button"
                       onClick={() => {
                         setEditing(false);
-                        setForm(user);
+                        setForm({ username, email });
                       }}
                       className="flex-1 px-4 py-2 border border-cyan-900 text-cyan-900 text-xs uppercase tracking-[0.3em] hover:text-cyan-400 transition-colors"
                     >
@@ -153,9 +177,9 @@ export default function ProfilePage() {
                 </form>
               ) : (
                 <>
-                  <div className="text-lg font-bold">{user.username}</div>
-                  <div className="text-xs text-cyan-400">{user.email}</div>
-                  <span className="badge badge-amber">Rang: {user.rank}</span>
+                  <div className="text-lg font-bold">{username}</div>
+                  <div className="text-xs text-cyan-400">{email}</div>
+                  <span className="badge badge-amber">Rang: {rank}</span>
                   <button
                     onClick={() => setEditing(true)}
                     className="mt-4 px-6 py-2 border border-cyan-400 text-cyan-400 text-xs uppercase tracking-[0.3em] hover:bg-cyan-400 hover:text-black transition-all"
@@ -173,16 +197,22 @@ export default function ProfilePage() {
 
               <div className="grid grid-cols-2 gap-2 w-full text-center text-xs mt-4">
                 <div className="border border-cyan-700 py-2 rounded">
-                  <div className="font-bold">{user.gamesPlayed}</div>Partides
+                  <div className="font-bold">{display(stats?.gamesPlayed)}</div>
+                  Partides
                 </div>
                 <div className="border border-cyan-700 py-2 rounded">
-                  <div className="font-bold">{user.completion}%</div>Completat
+                  <div className="font-bold">
+                    {display(stats?.completionRate, "%")}
+                  </div>
+                  Completat
                 </div>
                 <div className="border border-cyan-700 py-2 rounded">
-                  <div className="font-bold">{user.attempts}</div>Intents
+                  <div className="font-bold">{display(stats?.avgScore)}</div>
+                  Score mitjà
                 </div>
                 <div className="border border-cyan-700 py-2 rounded">
-                  <div className="font-bold">{user.victories}</div>Victòries
+                  <div className="font-bold">{display(stats?.victories)}</div>
+                  Victòries
                 </div>
               </div>
 
@@ -202,15 +232,12 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex flex-col gap-2">
-              {/*Canvis nous Sección de acciones secundarias */}
-
               <button
                 className="btn-secondary w-full"
                 onClick={() => router.push(PATHS.NARRATIVE)}
               >
                 Nova Partida
               </button>
-              {/*Canvis nous Sección de acciones secundarias */}
 
               <button
                 className="btn-secondary w-full border-red-600 text-red-400"
@@ -238,20 +265,18 @@ export default function ProfilePage() {
 
                     <div className="text-cyan font-bold text-lg">
                       {" "}
-                      Sala {user.currentRoom} / 03
+                      Sala {currentRoom} / 03
                     </div>
                   </div>
                   <div>
                     <div className="text-muted uppercase mb-1">INICI</div>
                     <div className="text-secondary text-sm">
-                      2087.03.14 {user.startDate}
+                      {formatTime(activeGame.createdAt ?? new Date())}
                     </div>
                   </div>
                   <div>
                     <div className="text-muted uppercase mb-1">ESTAT</div>
-                    <span className="badge badge-amber">
-                      EN CURS {user.status}
-                    </span>
+                    <span className="badge badge-amber">EN CURS</span>
                   </div>
                 </div>
                 <div className="text-muted text-[10px] mb-1">
@@ -260,27 +285,81 @@ export default function ProfilePage() {
                 <div className="w-full h-2 bg-cyan-900 rounded">
                   <div
                     className="h-2 bg-cyan-400 rounded"
-                    style={{ width: `${user.completion}%` }}
+                    style={{ width: `${stats?.completionRate ?? 0}%` }}
                   />
                 </div>
                 <div className="flex justify-between text-muted text-[10px] mt-1">
-                  <span>Sala {user.currentRoom} — Control Central</span>
-                  <span>{user.completion}% completat</span>
+                  <span>Sala {currentRoom} — Control Central</span>
+                  <span>{stats?.completionRate ?? 0}% completat</span>
                 </div>
               </div>
             )}
 
-            {/* Game Log */}
+            {/* Rendiment */}
+            <div className="profile-section bg-[#01111a] border border-cyan-800 rounded p-4">
+              <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">
+                Rendiment
+              </div>
+              <div className="grid grid-cols-4 gap-2 text-center text-xs">
+                <div className="border border-cyan-700 py-2 rounded">
+                  <div className="font-bold">{display(stats?.avgScore)}</div>
+                  <div className="text-[10px] text-cyan-500">Score mitjà</div>
+                </div>
+                <div className="border border-cyan-700 py-2 rounded">
+                  <div className="font-bold">{display(stats?.maxScore)}</div>
+                  <div className="text-[10px] text-cyan-500">Score màxim</div>
+                </div>
+                <div className="border border-cyan-700 py-2 rounded">
+                  <div className="font-bold">
+                    {display(stats?.totalHintsUsed)}
+                  </div>
+                  <div className="text-[10px] text-cyan-500">Pistes usades</div>
+                </div>
+                <div className="border border-cyan-700 py-2 rounded">
+                  <div className="font-bold">
+                    {isLoading ? "—" : (stats?.avgTimeFormatted ?? "00:00")}
+                  </div>
+                  <div className="text-[10px] text-cyan-500">Temps mitjà</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center text-xs mt-2">
+                <div className="border border-cyan-700 py-2 rounded">
+                  <div className="font-bold">
+                    {display(stats?.gamesAbandoned)}
+                  </div>
+                  <div className="text-[10px] text-cyan-500">Abandonades</div>
+                </div>
+                <div className="border border-cyan-700 py-2 rounded">
+                  <div className="font-bold">
+                    {display(stats?.gamesTimeExpired)}
+                  </div>
+                  <div className="text-[10px] text-cyan-500">Temps esgotat</div>
+                </div>
+                <div className="border border-cyan-700 py-2 rounded">
+                  <div className="font-bold">{display(stats?.gamesActive)}</div>
+                  <div className="text-[10px] text-cyan-500">Actives</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Partides Recents */}
             <div className="profile-section bg-[#01111a] border border-cyan-800 rounded p-4 text-[10px]">
               <div className="profile-section-title text-xs text-cyan-400 uppercase mb-2">
-                Registre d&apos;Activitat
+                Partides Recents
               </div>
-              {gameLog.map((entry, i) => (
-                <div key={i} className="flex gap-1 mb-1">
-                  <span className="text-cyan-400">{entry.time}</span>
-                  <span>{entry.text}</span>
-                </div>
-              ))}
+              {!stats || stats.recentGames.length === 0 ? (
+                <div className="text-cyan-700">Sense activitat registrada</div>
+              ) : (
+                stats.recentGames.map((g) => (
+                  <div key={g.id} className="flex gap-2 mb-1">
+                    <span className="text-cyan-400">
+                      {formatTime(g.createdAt)}
+                    </span>
+                    <span className="flex-1">{describeGame(g)}</span>
+                    <span className="text-cyan-500">{g.score} pts</span>
+                  </div>
+                ))
+              )}
             </div>
 
             {/* Achievements */}
