@@ -36,6 +36,9 @@ export const ENDPOINTS = {
     hint: (gameId: number) => `${BASE_URL}/game/${gameId}/hint`,
     /** PATCH — Modifica camps controlats de la partida (status → ended; backend marca endReason=abandoned) */
     patch: (gameId: number) => `${BASE_URL}/game/${gameId}`,
+    /** POST — Consulta l'assistent IA ABYSS (limitat per partida, penalitza score) */
+    askAssistant: (gameId: number) =>
+      `${BASE_URL}/game/${gameId}/ask-assistant`,
   },
 
   /** Endpoints d'administració  */
