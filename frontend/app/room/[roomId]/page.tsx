@@ -4,6 +4,7 @@ import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import RoomScene from "@/components/room/RoomScene/RoomScene";
 import HudPanel from "@/components/room/HudPanel/HudPanel";
+import AssistantPanel from "@/components/room/AssistantPanel/AssistantPanel";
 import SaveIndicator from "@/components/room/SaveIndicator/SaveIndicator";
 import TimeExpiredGuard from "@/components/room/TimeExpiredGuard/TimeExpiredGuard";
 import { GameProvider } from "@/context/GameContext";
@@ -57,6 +58,8 @@ export default function RoomPage() {
         <div className="fixed bottom-4 left-4">
           <SaveIndicator />
         </div>
+
+        <AssistantPanel room={room} gameId={gameId} />
 
         <TimeExpiredGuard gameId={gameId} />
       </main>
